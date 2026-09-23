@@ -1,0 +1,70 @@
+@page
+@model MpdApply.Pages.Admin.SubmissionsModel
+@{ ViewData["Title"] = "Submissions"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Submitted Applications</h4>
+    <a asp-page="/Settings/Index" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-gear me-1"></i>Settings
+    </a>
+</div>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+@if (!Model.Applications.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center text-muted py-5">
+            No submissions yet.
+        </div>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead style="background:#f8f9fa">
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Email</th>
+                        <th>Submitted</th>
+                        <th>IP</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var app in Model.Applications)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@app.FullName</td>
+                            <td>@app.PositionAppliedFor</td>
+                            <td>@app.Email</td>
+                            <td class="text-muted small">@app.SubmittedAt?.ToLocalTime().ToString("M/d/yyyy h:mm tt")</td>
+                            <td class="text-muted small">@app.IpAddress</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a asp-page="/Admin/Submissions" asp-page-handler="Download"
+                                       asp-route-id="@app.Id"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-download me-1"></i>PDF
+                                    </a>
+                                    <form method="post" asp-page-handler="Resend" asp-route-id="@app.Id">
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-envelope me-1"></i>Resend
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="text-muted small mt-2">@Model.Applications.Count submission(s) total</div>
+}
