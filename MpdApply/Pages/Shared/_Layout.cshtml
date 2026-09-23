@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — MPD Employment Application</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <style>
+        :root { --mpd-blue: #285190; }
+        body { background: #fafbfc; }
+        .mpd-header { background: var(--mpd-blue); color: #fff; padding: 16px 0; }
+        .mpd-header h1 { font-size: 1.1rem; margin: 0; font-weight: 600; }
+        .mpd-header p { font-size: 0.8rem; margin: 0; opacity: 0.8; }
+        .step-bar { background: #fff; border-bottom: 1px solid #dee2e6; }
+        .step-item { font-size: 0.75rem; color: #6c757d; padding: 8px 4px; text-align: center; }
+        .step-item.active { color: var(--mpd-blue); font-weight: 600; }
+        .step-item.done { color: #198754; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px; border-radius: 50%; font-size: 0.7rem; font-weight: 700;
+            margin-bottom: 2px; background: #dee2e6; color: #6c757d; }
+        .step-item.active .step-num { background: var(--mpd-blue); color: #fff; }
+        .step-item.done .step-num { background: #198754; color: #fff; }
+        .card-header-mpd { background: var(--mpd-blue); color: #fff; font-weight: 600; padding: 10px 16px; border-radius: 4px 4px 0 0; }
+        .initial-field { width: 60px; font-family: cursive; text-align: center; border: 1px solid #ced4da; border-radius: 4px; padding: 4px; }
+        .sig-pad-wrap { border: 1px solid #ced4da; border-radius: 4px; background: #fff; }
+        .sig-pad-wrap canvas { display: block; cursor: crosshair; }
+        label.form-label { font-weight: 500; font-size: 0.875rem; margin-bottom: 3px; }
+        .section-divider { border-top: 2px solid var(--mpd-blue); margin: 1.5rem 0 0.75rem; padding-top: 0.5rem;
+            font-weight: 600; color: var(--mpd-blue); font-size: 0.95rem; }
+        .ack-item { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .ack-item:last-child { border-bottom: none; }
+        .ack-text { font-size: 0.85rem; line-height: 1.5; flex: 1; }
+        .btn-mpd { background: var(--mpd-blue); color: #fff; border: none; }
+        .btn-mpd:hover { background: #1e3d6e; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="mpd-header">
+        <div class="container">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-shield-fill fs-3"></i>
+                <div>
+                    <h1>Town of Middletown Police Department</h1>
+                    <p>Employment Application</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewData["Step"] != null)
+    {
+        var current = (int)ViewData["Step"]!;
+        <div class="step-bar">
+            <div class="container">
+                <div class="row g-0">
+                    @foreach (var (num, label) in new (int, string)[] { (1,"Personal Info"), (2,"Employment"), (3,"Eligibility"), (4,"Acknowledgements"), (5,"Sign & Submit") })
+                    {
+                        var cls = num == current ? "active" : (num < current ? "done" : "");
+                        <div class="col step-item @cls">
+                            <div class="d-flex flex-column align-items-center">
+                                <span class="step-num">@(num < current ? "✓" : num.ToString())</span>
+                                <span>@label</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="container py-4">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @RenderBody()
+    </div>
+
+    <footer class="text-center text-muted py-3 mt-4" style="font-size:0.75rem; border-top:1px solid #dee2e6;">
+        Town of Middletown Police Department &mdash; 130 Hampden Road, Middletown, DE 19709 &mdash; (302) 376-9950
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

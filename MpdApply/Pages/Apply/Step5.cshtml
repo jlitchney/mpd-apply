@@ -1,0 +1,92 @@
+@page
+@model MpdApply.Pages.Apply.Step5Model
+@{ ViewData["Title"] = "Step 5 — Sign & Submit"; ViewData["Step"] = 5; }
+
+<div class="card shadow-sm">
+    <div class="card-header-mpd">Step 5 of 5 &mdash; EEO Data &amp; Signatures</div>
+    <div class="card-body">
+        <form method="post" id="submitForm">
+
+            <div class="section-divider">Voluntary EEO &amp; Veteran Status Data</div>
+            <div class="alert alert-secondary small">Completion of this section is <strong>voluntary</strong> and will not affect your application.</div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Gender</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check"><input class="form-check-input" type="radio" asp-for="Gender" value="Male" id="male" /><label class="form-check-label" for="male">Male</label></div>
+                        <div class="form-check"><input class="form-check-input" type="radio" asp-for="Gender" value="Female" id="female" /><label class="form-check-label" for="female">Female</label></div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label">EEO Identification Group</label>
+                    <select asp-for="EeoGroup" class="form-select">
+                        <option value="">-- Select (optional) --</option>
+                        <option>Hispanic or Latino</option>
+                        <option>White (not Hispanic or Latino)</option>
+                        <option>Black / African American (not Hispanic or Latino)</option>
+                        <option>Asian (not Hispanic or Latino)</option>
+                        <option>Native Hawaiian / Other Pacific Islander</option>
+                        <option>American Indian / Alaskan Native</option>
+                        <option>Two or more races (not Hispanic or Latino)</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Veteran Status</label>
+                    <div class="d-flex gap-4">
+                        <div class="form-check"><input class="form-check-input" asp-for="VeteranProtectedCategory" id="vetProt" /><label class="form-check-label" for="vetProt">I identify as one or more of the classifications of protected veterans</label></div>
+                        <div class="form-check"><input class="form-check-input" asp-for="VeteranNotProtected" id="vetNot" /><label class="form-check-label" for="vetNot">I am not a protected veteran</label></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider">Background Check Authorization <span class="text-danger">*</span></div>
+            <p class="small">I hereby grant the police permission to conduct a background check on me for the purpose of determining eligibility for participation in the Hiring Process for the Middletown Police Department.</p>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold">Your Signature <span class="text-danger">*</span></label>
+                <div class="sig-pad-wrap mb-2" style="max-width:500px">
+                    <canvas id="bgSigCanvas" width="500" height="120"></canvas>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="bgPad.clear()">Clear Signature</button>
+                <input type="hidden" name="BackgroundSignatureData" id="bgSigData" />
+            </div>
+
+            <div class="section-divider">Veteran Status Signature <span class="text-muted small fw-normal">(Optional — complete if you selected a veteran status above)</span></div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Applicant Signature (Veteran Status)</label>
+                <div class="sig-pad-wrap mb-2" style="max-width:500px">
+                    <canvas id="vetSigCanvas" width="500" height="100"></canvas>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="vetPad.clear()">Clear Signature</button>
+                <input type="hidden" name="VeteranSignatureData" id="vetSigData" />
+            </div>
+
+            <div class="alert alert-info small">
+                <i class="bi bi-info-circle me-1"></i>
+                By submitting this application you certify that all information provided is true and correct to the best of your knowledge.
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-page="Step4" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back</a>
+                <button type="submit" class="btn btn-success px-4" id="submitBtn">
+                    <i class="bi bi-send me-1"></i> Submit Application
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const bgCanvas = document.getElementById('bgSigCanvas');
+    const vetCanvas = document.getElementById('vetSigCanvas');
+    const bgPad = new SignaturePad(bgCanvas, { backgroundColor: 'rgb(255,255,255)' });
+    const vetPad = new SignaturePad(vetCanvas, { backgroundColor: 'rgb(255,255,255)' });
+
+    document.getElementById('submitForm').addEventListener('submit', function(e) {
+        document.getElementById('bgSigData').value = bgPad.isEmpty() ? '' : bgPad.toDataURL('image/png');
+        document.getElementById('vetSigData').value = vetPad.isEmpty() ? '' : vetPad.toDataURL('image/png');
+    });
+</script>
+}

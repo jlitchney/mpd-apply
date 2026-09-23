@@ -1,0 +1,30 @@
+@page
+@model MpdApply.Pages.Settings.IndexModel
+@{ ViewData["Title"] = "Settings"; }
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header-mpd">Application Settings</div>
+            <div class="card-body">
+                @if (Model.Message != null)
+                {
+                    <div class="alert alert-success">@Model.Message</div>
+                }
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Recipient Email <span class="text-danger">*</span></label>
+                        <input asp-for="RecipientEmail" class="form-control" type="email" />
+                        <div class="form-text">Completed applications will be emailed to this address.</div>
+                        <span asp-validation-for="RecipientEmail" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Agency Name</label>
+                        <input asp-for="AgencyName" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-mpd">Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

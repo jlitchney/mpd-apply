@@ -1,0 +1,114 @@
+@page
+@model MpdApply.Pages.Apply.Step3Model
+@{ ViewData["Title"] = "Step 3 — Eligibility Standards"; ViewData["Step"] = 3; }
+
+@functions {
+    void InitField(string aspFor, string id, string label)
+    {
+        <div class="ack-item">
+            <input name="@aspFor" id="@id" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+            <div class="ack-text">@label</div>
+        </div>
+    }
+}
+
+<div class="card shadow-sm">
+    <div class="card-header-mpd">Step 3 of 5 &mdash; Eligibility Standards</div>
+    <div class="card-body">
+        <div class="alert alert-info small mb-3">
+            <i class="bi bi-info-circle me-1"></i>
+            Please initial next to each standard that you meet. All COPT standards are required for Police Officer candidates.
+        </div>
+        <form method="post">
+
+            <div class="section-divider">Delaware Council on Police Training (COPT) Requirements</div>
+            <p class="text-muted small">Applicants must meet ALL of the following COPT standards.</p>
+
+            <div class="ack-item">
+                <input asp-for="InitCoptCitizenship" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">United States Citizenship (native or naturalized)</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCopt18" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">18 years or older for Public Safety Aide</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCopt21" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">21 years or older for Police Officer <span class="text-muted">(Must be 21 upon successful completion of the academy)</span></div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCoptSenses" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">No impediment of the senses</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCoptVision" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">Acuity of vision not more than 20/200 corrected to 20/20 in each eye</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCoptColorVision" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">Ability to distinguish between the colors of red, green, and amber; no pathology of the eyes; acceptable depth perception</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCoptHearing" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">Possess normal hearing in both ears per current standard</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCoptNoCommunicable" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">Have no communicable diseases</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCoptNoDeformity" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">Have no physical deformities which would be detrimental to proper performance of police duties</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCoptDrugScreen" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">Must pass a drug-screening test prior to appointment or attendance of a Police training academy</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCoptWeight" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">Weight must be proportionate to height and build or body fat percentage</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCoptMilitary" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">Honorable discharge or positive conduct during military service</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCoptNoFelony" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">No Felony or Misdemeanor conviction prohibiting the possession of a firearm</div>
+            </div>
+            <div class="ack-item">
+                <input asp-for="InitCoptDl" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
+                <div class="ack-text">Valid Driver's License for Police Officer</div>
+            </div>
+
+            <div class="section-divider">Education OR Work History Requirement</div>
+            <p class="text-muted small">Please initial next to the standard that you meet and select it from the list.</p>
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Your Initials</label>
+                    <input asp-for="InitEduStandard" class="initial-field form-control" maxlength="5" placeholder="Initials" />
+                </div>
+                <div class="col-md-9">
+                    <label class="form-label">Standard Met</label>
+                    <select asp-for="EduStandardMet" class="form-select">
+                        <option value="">-- Select the standard you meet --</option>
+                        <option>Completion of a Bachelor's Degree</option>
+                        <option>Completion of an Associate's Degree or 60 college credit hours</option>
+                        <option>30 college credit hours + 2 years active duty military service</option>
+                        <option>30 college credit hours + current satisfactory employment with the Town of Middletown</option>
+                        <option>30 college credit hours + 2 years satisfactory work experience</option>
+                        <option>2 years of experience as a sworn Police Officer</option>
+                        <option>4 years of full active military duty with Honorable Discharge</option>
+                        <option>3 years of satisfactory work performance</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-page="Step2" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back</a>
+                <button type="submit" class="btn btn-mpd px-4">Next: Acknowledgements <i class="bi bi-arrow-right ms-1"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
