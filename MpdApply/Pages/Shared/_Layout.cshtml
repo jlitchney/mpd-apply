@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] — MPD Employment Application</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <style>
         :root { --mpd-blue: #285190; }
         body { background: #fafbfc; }
@@ -22,7 +23,8 @@
         .step-item.active .step-num { background: var(--mpd-blue); color: #fff; }
         .step-item.done .step-num { background: #198754; color: #fff; }
         .card-header-mpd { background: var(--mpd-blue); color: #fff; font-weight: 600; padding: 10px 16px; border-radius: 4px 4px 0 0; }
-        .initial-field { width: 60px; font-family: cursive; text-align: center; border: 1px solid #ced4da; border-radius: 4px; padding: 4px; }
+        .initial-btn { width: 64px; min-height: 44px; border: 2px dashed #ced4da; border-radius: 6px; background: #f8f9fa; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 2px; transition: border-color 0.15s, background 0.15s; }
+        .initial-btn:hover { border-color: #285190; background: #e8efff; }
         .sig-pad-wrap { border: 1px solid #ced4da; border-radius: 4px; background: #fff; }
         .sig-pad-wrap canvas { display: block; cursor: crosshair; }
         label.form-label { font-weight: 500; font-size: 0.875rem; margin-bottom: 3px; }
@@ -85,7 +87,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

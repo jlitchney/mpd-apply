@@ -1,4 +1,4 @@
-@* Initials panel — set initials once, click each field individually to stamp *@
+@* Initials panel — set initials once, click each field to stamp *@
 <div class="initials-panel card shadow-sm mb-4" style="position:sticky;top:0;z-index:100;border-left:4px solid #285190">
     <div class="card-body py-2 px-3">
         <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -37,7 +37,7 @@
             </div>
 
             <span class="text-muted small ms-1">
-                <i class="bi bi-hand-index me-1"></i>Click each field below to initial it
+                <i class="bi bi-hand-index me-1"></i>Click each field below to stamp your initials
             </span>
         </div>
     </div>
@@ -48,19 +48,17 @@
 
 <script>
 (function () {
-    // ── Signature pad for draw mode ──
-    const canvas = document.getElementById('initDrawCanvas');
-    const pad = new SignaturePad(canvas, { backgroundColor: 'rgb(255,255,255)', minWidth: 1.5, maxWidth: 3 });
-    document.getElementById('clearInitBtn').addEventListener('click', () => pad.clear());
+    var canvas = document.getElementById('initDrawCanvas');
+    var pad = new SignaturePad(canvas, { backgroundColor: 'rgb(255,255,255)', minWidth: 1.5, maxWidth: 3 });
+    document.getElementById('clearInitBtn').addEventListener('click', function() { pad.clear(); });
 
-    // ── Tab switching ──
-    const typeBtn = document.getElementById('typeTabBtn');
-    const drawBtn = document.getElementById('drawTabBtn');
-    const typePanel = document.getElementById('typeModePanel');
-    const drawPanel = document.getElementById('drawModePanel');
+    var typeBtn = document.getElementById('typeTabBtn');
+    var drawBtn = document.getElementById('drawTabBtn');
+    var typePanel = document.getElementById('typeModePanel');
+    var drawPanel = document.getElementById('drawModePanel');
 
-    typeBtn.addEventListener('click', e => { e.preventDefault(); activateTab('type'); });
-    drawBtn.addEventListener('click', e => { e.preventDefault(); activateTab('draw'); });
+    typeBtn.addEventListener('click', function(e) { e.preventDefault(); activateTab('type'); });
+    drawBtn.addEventListener('click', function(e) { e.preventDefault(); activateTab('draw'); });
 
     function activateTab(mode) {
         if (mode === 'type') {
@@ -76,54 +74,51 @@
         }
     }
 
-    // ── Click each field to stamp initials ──
-    function stampField(field) {
-        const isDrawMode = drawBtn.classList.contains('active');
+    function stampField(btn, hiddenInput) {
+        var isDrawMode = drawBtn.classList.contains('active');
 
         if (isDrawMode) {
             if (pad.isEmpty()) { alert('Please draw your initials in the box above first.'); return; }
-            const dataUrl = pad.toDataURL('image/png');
+            var dataUrl = pad.toDataURL('image/png');
             document.getElementById('initialsImageData').value = dataUrl;
             document.getElementById('initialsMode').value = 'drawn';
-            field.value = '(initialed)';
-            field.style.backgroundImage = `url('${dataUrl}')`;
-            field.style.backgroundSize = 'contain';
-            field.style.backgroundRepeat = 'no-repeat';
-            field.style.backgroundPosition = 'center';
-            field.style.color = 'transparent';
+            hiddenInput.value = '(initialed)';
+            btn.innerHTML = '<img src="' + dataUrl + '" style="max-height:38px;max-width:60px;object-fit:contain">';
             localStorage.setItem('mpd_initials', JSON.stringify({ mode: 'drawn', image: dataUrl }));
         } else {
-            const text = document.getElementById('initialsText').value.trim();
-            const font = document.getElementById('initialsFont').value;
+            var text = document.getElementById('initialsText').value.trim();
+            var font = document.getElementById('initialsFont').value;
             if (!text) { alert('Please type your initials in the box above first.'); return; }
             document.getElementById('initialsMode').value = 'text';
             document.getElementById('initialsImageData').value = '';
-            field.value = text;
-            field.style.fontFamily = font;
-            field.style.fontSize = '1.1rem';
-            field.style.backgroundImage = '';
-            field.style.color = '';
-            localStorage.setItem('mpd_initials', JSON.stringify({ mode: 'text', text, font }));
+            hiddenInput.value = text;
+            btn.innerHTML = '<span style="font-family:' + font + ';font-size:1.1rem;color:#000">' + text + '</span>';
+            localStorage.setItem('mpd_initials', JSON.stringify({ mode: 'text', text: text, font: font }));
         }
 
-        field.style.borderColor = '#198754';
-        field.style.backgroundColor = '#f0fff4';
+        btn.style.border = '2px solid #198754';
+        btn.style.background = '#f0fff4';
     }
 
-    // Wire up all initials fields on this page
-    document.querySelectorAll('.initial-field').forEach(field => {
-        field.readOnly = true;
-        field.style.cursor = 'pointer';
-        field.title = 'Click to initial';
-        field.placeholder = 'Click';
-        field.addEventListener('click', () => stampField(field));
+    // Replace each .initial-field input with a visual button + keep hidden input for POST
+    document.querySelectorAll('.initial-field').forEach(function(field) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'initial-btn';
+        btn.title = 'Click to stamp your initials';
+        btn.innerHTML = '<small style="color:#aaa;font-size:0.65rem;font-family:sans-serif;line-height:1.2">Click<br>to initial</small>';
+
+        field.parentNode.insertBefore(btn, field);
+        field.style.display = 'none';
+
+        btn.addEventListener('click', function() { stampField(btn, field); });
     });
 
-    // ── Restore from localStorage ──
+    // Restore from localStorage
     try {
-        const saved = localStorage.getItem('mpd_initials');
+        var saved = localStorage.getItem('mpd_initials');
         if (saved) {
-            const data = JSON.parse(saved);
+            var data = JSON.parse(saved);
             if (data.mode === 'text' && data.text) {
                 document.getElementById('initialsText').value = data.text;
                 if (data.font) document.getElementById('initialsFont').value = data.font;

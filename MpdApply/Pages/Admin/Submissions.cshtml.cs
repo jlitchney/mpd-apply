@@ -11,11 +11,13 @@ public class SubmissionsModel : PageModel
 {
     private readonly AppDbContext _db;
     private readonly EmailService _email;
+    private readonly ILogger<SubmissionsModel> _logger;
 
-    public SubmissionsModel(AppDbContext db, EmailService email)
+    public SubmissionsModel(AppDbContext db, EmailService email, ILogger<SubmissionsModel> logger)
     {
         _db = db;
         _email = email;
+        _logger = logger;
     }
 
     public List<ApplicationSubmission> Applications { get; set; } = new();
@@ -61,7 +63,15 @@ public class SubmissionsModel : PageModel
         var app = await _db.Applications.FindAsync(id);
         if (app == null) return NotFound();
 
-        var pdf = PdfGenerator.Generate(app);
-        return File(pdf, "application/pdf", $"Application_{app.LastName}_{app.FirstName}.pdf");
+        try
+        {
+            var pdf = PdfGenerator.Generate(app);
+            return File(pdf, "application/pdf", $"Application_{app.LastName}_{app.FirstName}.pdf");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "PDF generation failed for application {Id}", id);
+            return Content($"PDF generation error: {ex.GetType().Name}: {ex.Message}\n\n{ex.StackTrace}", "text/plain");
+        }
     }
 }

@@ -9,8 +9,6 @@ public static class PdfGenerator
 {
     public static byte[] Generate(ApplicationSubmission a)
     {
-        QuestPDF.Settings.License = LicenseType.Community;
-
         byte[]? initImg = null;
         if (a.InitialsMode == "drawn" && !string.IsNullOrWhiteSpace(a.InitialsImageData))
         {
