@@ -1,0 +1,68 @@
+@* Step 4 — uses initials already set in Step 3 (stored in localStorage) *@
+<div class="card shadow-sm mb-4" style="position:sticky;top:0;z-index:100;border-left:4px solid #285190">
+    <div class="card-body py-2 px-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="fw-bold text-nowrap" style="color:#285190">
+                <i class="bi bi-pen me-1"></i>Initialing as:
+            </span>
+            <span id="initialsDisplay" class="text-muted small fst-italic">loading…</span>
+            <a asp-page="Step3" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Change Initials
+            </a>
+            <span class="text-muted small">
+                <i class="bi bi-hand-index me-1"></i>Click each field below to stamp your initials
+            </span>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" name="InitialsMode" id="initialsMode" />
+<input type="hidden" name="InitialsImageData" id="initialsImageData" />
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem('mpd_initials') || 'null'); } catch (e) {}
+
+    var display = document.getElementById('initialsDisplay');
+
+    if (!saved) {
+        display.innerHTML = '<span class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>No initials set — go back to Step 3.</span>';
+        return;
+    }
+
+    if (saved.mode === 'text') {
+        display.innerHTML = '<span style="font-family:' + saved.font + ';font-size:1.1rem;color:#000">' + saved.text + '</span>';
+        document.getElementById('initialsMode').value = 'text';
+    } else {
+        display.innerHTML = '<img src="' + saved.image + '" style="max-height:28px;max-width:70px;object-fit:contain;vertical-align:middle">';
+        document.getElementById('initialsMode').value = 'drawn';
+        document.getElementById('initialsImageData').value = saved.image;
+    }
+
+    function stampField(btn, hiddenInput) {
+        if (saved.mode === 'drawn') {
+            hiddenInput.value = '(initialed)';
+            btn.innerHTML = '<img src="' + saved.image + '" style="max-height:38px;max-width:60px;object-fit:contain">';
+        } else {
+            hiddenInput.value = saved.text;
+            btn.innerHTML = '<span style="font-family:' + saved.font + ';font-size:1.1rem;color:#000">' + saved.text + '</span>';
+        }
+        btn.style.border = '2px solid #198754';
+        btn.style.background = '#f0fff4';
+    }
+
+    document.querySelectorAll('.initial-field').forEach(function (field) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'initial-btn';
+        btn.title = 'Click to stamp your initials';
+        btn.innerHTML = '<small style="color:#aaa;font-size:0.65rem;font-family:sans-serif;line-height:1.2">Click<br>to initial</small>';
+
+        field.parentNode.insertBefore(btn, field);
+        field.style.display = 'none';
+
+        btn.addEventListener('click', function () { stampField(btn, field); });
+    });
+});
+</script>

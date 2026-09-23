@@ -48,17 +48,18 @@
 
 <script>
 (function () {
+    // Canvas is already in the DOM above — initialize SignaturePad immediately
     var canvas = document.getElementById('initDrawCanvas');
     var pad = new SignaturePad(canvas, { backgroundColor: 'rgb(255,255,255)', minWidth: 1.5, maxWidth: 3 });
-    document.getElementById('clearInitBtn').addEventListener('click', function() { pad.clear(); });
+    document.getElementById('clearInitBtn').addEventListener('click', function () { pad.clear(); });
 
     var typeBtn = document.getElementById('typeTabBtn');
     var drawBtn = document.getElementById('drawTabBtn');
     var typePanel = document.getElementById('typeModePanel');
     var drawPanel = document.getElementById('drawModePanel');
 
-    typeBtn.addEventListener('click', function(e) { e.preventDefault(); activateTab('type'); });
-    drawBtn.addEventListener('click', function(e) { e.preventDefault(); activateTab('draw'); });
+    typeBtn.addEventListener('click', function (e) { e.preventDefault(); activateTab('type'); });
+    drawBtn.addEventListener('click', function (e) { e.preventDefault(); activateTab('draw'); });
 
     function activateTab(mode) {
         if (mode === 'type') {
@@ -100,32 +101,34 @@
         btn.style.background = '#f0fff4';
     }
 
-    // Replace each .initial-field input with a visual button + keep hidden input for POST
-    document.querySelectorAll('.initial-field').forEach(function(field) {
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'initial-btn';
-        btn.title = 'Click to stamp your initials';
-        btn.innerHTML = '<small style="color:#aaa;font-size:0.65rem;font-family:sans-serif;line-height:1.2">Click<br>to initial</small>';
+    // .initial-field inputs are below this script — wait for full DOM before wiring them up
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.initial-field').forEach(function (field) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'initial-btn';
+            btn.title = 'Click to stamp your initials';
+            btn.innerHTML = '<small style="color:#aaa;font-size:0.65rem;font-family:sans-serif;line-height:1.2">Click<br>to initial</small>';
 
-        field.parentNode.insertBefore(btn, field);
-        field.style.display = 'none';
+            field.parentNode.insertBefore(btn, field);
+            field.style.display = 'none';
 
-        btn.addEventListener('click', function() { stampField(btn, field); });
-    });
+            btn.addEventListener('click', function () { stampField(btn, field); });
+        });
 
-    // Restore from localStorage
-    try {
-        var saved = localStorage.getItem('mpd_initials');
-        if (saved) {
-            var data = JSON.parse(saved);
-            if (data.mode === 'text' && data.text) {
-                document.getElementById('initialsText').value = data.text;
-                if (data.font) document.getElementById('initialsFont').value = data.font;
-            } else if (data.mode === 'drawn' && data.image) {
-                activateTab('draw');
+        // Restore from localStorage
+        try {
+            var saved = localStorage.getItem('mpd_initials');
+            if (saved) {
+                var data = JSON.parse(saved);
+                if (data.mode === 'text' && data.text) {
+                    document.getElementById('initialsText').value = data.text;
+                    if (data.font) document.getElementById('initialsFont').value = data.font;
+                } else if (data.mode === 'drawn' && data.image) {
+                    activateTab('draw');
+                }
             }
-        }
-    } catch (e) {}
+        } catch (e) {}
+    });
 })();
 </script>
