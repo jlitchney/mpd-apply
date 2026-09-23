@@ -7,9 +7,9 @@
     <div class="card-body">
         <form method="post">
         <partial name="_InitialsReminder" />
-        <div class="alert alert-warning small mb-3">
-            <i class="bi bi-exclamation-triangle me-1"></i>
-            Please initial next to each item to confirm you have read and understand each disqualification standard.
+        <div class="mb-3" style="font-size:0.875rem;line-height:1.7;color:#333">
+            <p class="mb-1"><strong>Automatic Disqualification will occur for the below areas.</strong> Applicants must acknowledge the application disqualification standards.</p>
+            <p class="mb-0">Please initial next to each standard to signify that you understand them as they are written.</p>
         </div>
 
             <div class="section-divider">Criminal Record and Activity</div>
@@ -46,7 +46,11 @@
             <div class="ack-item"><input asp-for="InitAck2" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" /><div class="ack-text">The Police Department is a para-military organization. Officers are expected to wear an authorized uniform and maintain the Department's grooming standards.</div></div>
             <div class="ack-item"><input asp-for="InitAck3" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" /><div class="ack-text">Candidate must be able to achieve minimum standard during fitness testing: Sit-Ups (22), Push-Ups (12), 1.5 Mile Run (16:31).</div></div>
 
-            <div class="d-flex justify-content-between mt-4">
+            <div class="alert alert-secondary small mt-4">
+                If you fail to meet any of the above criteria you will be notified that you are no longer being considered for employment with the Middletown Police Department. You may reapply once you have met the above criteria during the next hiring process.
+            </div>
+
+            <div class="d-flex justify-content-between mt-3">
                 <a asp-page="Step3" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back</a>
                 <button type="submit" class="btn btn-mpd px-4">Next: Sign &amp; Submit <i class="bi bi-arrow-right ms-1"></i></button>
             </div>

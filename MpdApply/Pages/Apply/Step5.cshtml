@@ -8,7 +8,11 @@
         <form method="post" id="submitForm">
 
             <div class="section-divider">Voluntary EEO &amp; Veteran Status Data</div>
-            <div class="alert alert-secondary small">Completion of this section is <strong>voluntary</strong> and will not affect your application.</div>
+            <div class="p-3 mb-3 rounded" style="background:#f8f9fa;font-size:0.8rem;line-height:1.6;color:#444">
+                <p class="mb-2"><strong>PLEASE NOTE: Completion of this form is voluntary.</strong> We consider all applicants for positions without regard to race, color, religion, sex, national origin, citizenship, age, mental or physical disabilities, veteran, or any other similarly protected status. We also comply with all applicable laws governing employment practices and do not discriminate on the basis of any unlawful criteria.</p>
+                <p class="mb-2">To comply with requirements regarding government recordkeeping, reporting, and other legal obligations that may apply, we request that you complete this form. Providing this information is <strong>STRICTLY VOLUNTARY</strong>. Not providing it will not subject you to any negative personnel decision or action. Your cooperation is appreciated.</p>
+                <p class="mb-0 fst-italic">To be completed by applicant on a voluntary basis. Not for interview purposes. Filed separately from application.</p>
+            </div>
 
             <div class="row g-3 mb-3">
                 <div class="col-md-4">
@@ -33,9 +37,19 @@
                 </div>
                 <div class="col-12">
                     <label class="form-label">Veteran Status</label>
-                    <div class="d-flex gap-4">
+                    <div class="d-flex flex-wrap gap-4 mb-2">
                         <div class="form-check"><input class="form-check-input" asp-for="VeteranProtectedCategory" id="vetProt" /><label class="form-check-label" for="vetProt">I identify as one or more of the classifications of protected veterans</label></div>
                         <div class="form-check"><input class="form-check-input" asp-for="VeteranNotProtected" id="vetNot" /><label class="form-check-label" for="vetNot">I am not a protected veteran</label></div>
+                    </div>
+                    <div class="p-3 rounded" style="background:#f8f9fa;font-size:0.78rem;line-height:1.6;color:#555">
+                        <p class="mb-1">This employer is a Government contractor subject to the Vietnam Era Veterans' Readjustment Assistance Act of 1974 (VEVRAA), which requires affirmative action to employ and advance in employment protected veterans. The protected veteran classifications are defined as follows:</p>
+                        <ul class="mb-1">
+                            <li><strong>Disabled veteran:</strong> A veteran entitled to compensation under laws administered by the Secretary of Veterans Affairs, or discharged/released from active duty because of a service-connected disability.</li>
+                            <li><strong>Recently separated veteran:</strong> Any veteran during the three-year period beginning on the date of discharge or release from active duty.</li>
+                            <li><strong>Active-duty wartime or campaign-badge veteran:</strong> A veteran who served on active duty during a war or in a campaign/expedition for which a campaign badge was authorized.</li>
+                            <li><strong>Armed Forces service medal veteran:</strong> A veteran who participated in a U.S. military operation for which an Armed Forces service medal was awarded pursuant to Executive Order 12985.</li>
+                        </ul>
+                        <p class="mb-0">Protected veterans may have additional rights under USERRA. For more information, call the U.S. Department of Labor's Veterans Employment and Training Service (VETS) toll-free at 1-866-4-USA-DOL.</p>
                     </div>
                 </div>
             </div>

@@ -2,21 +2,17 @@
 @model MpdApply.Pages.Apply.Step3Model
 @{ ViewData["Title"] = "Step 3 — Eligibility Standards"; ViewData["Step"] = 3; }
 
-@functions {
-    void InitField(string aspFor, string id, string label)
-    {
-        <div class="ack-item">
-            <input name="@aspFor" id="@id" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" />
-            <div class="ack-text">@label</div>
-        </div>
-    }
-}
-
 <div class="card shadow-sm">
     <div class="card-header-mpd">Step 3 of 5 &mdash; Eligibility Standards</div>
     <div class="card-body">
         <form method="post">
         <partial name="_InitialsPanel" />
+
+        <div class="mb-4" style="font-size:0.875rem;line-height:1.7;color:#333">
+            <p>The Middletown Police recruitment process for Police Officers is a competitive endeavor and requires our agency to identify highly qualified applicants for employment consideration. Our community expects and deserves the employment of only those who possess the highest degree of judgment, maturity, integrity and credibility.</p>
+            <p>The Middletown Police will accept applications throughout the year. The Application and the Eligibility Standards Guide must be completed and submitted in order to be considered as an Applicant.</p>
+            <p class="mb-0">The following is a guide for applicant eligibility standards. <strong>If you do not meet the minimum eligibility standards, you will not be considered for the process.</strong></p>
+        </div>
 
             <div class="section-divider">Delaware Council on Police Training (COPT) Requirements</div>
             <p class="text-muted small">Applicants must meet ALL of the following COPT standards.</p>
@@ -79,6 +75,7 @@
             </div>
 
             <div class="section-divider">Education OR Work History Requirement</div>
+            <p class="text-muted small">Applicants must meet one of the following Educational OR Work History Standards during the application process for Police Officer. A full College Degree is preferred. Non-Police Officer positions do not require the below standards.</p>
             <p class="text-muted small">Please initial next to the standard that you meet and select it from the list.</p>
 
             <div class="row g-3">
@@ -91,15 +88,20 @@
                     <select asp-for="EduStandardMet" class="form-select">
                         <option value="">-- Select the standard you meet --</option>
                         <option>Completion of a Bachelor's Degree</option>
-                        <option>Completion of an Associate's Degree or 60 college credit hours</option>
-                        <option>30 college credit hours + 2 years active duty military service</option>
-                        <option>30 college credit hours + current satisfactory employment with the Town of Middletown</option>
-                        <option>30 college credit hours + 2 years satisfactory work experience</option>
+                        <option>Completion of an Associate's Degree or 60 college credit hours*</option>
+                        <option>30 college credit hours* + 2 years of active duty military service*</option>
+                        <option>30 college credit hours* + current satisfactory employment with the Town of Middletown*</option>
+                        <option>30 college credit hours* + 2 years of work experience (satisfactory employment)*</option>
                         <option>2 years of experience as a sworn Police Officer</option>
-                        <option>4 years of full active military duty with Honorable Discharge</option>
-                        <option>3 years of satisfactory work performance</option>
+                        <option>4 years of full active military duty with Honorable Discharge by date of hire</option>
+                        <option>3 years of satisfactory work performance**</option>
                     </select>
                 </div>
+            </div>
+
+            <div class="mt-3 p-3 rounded" style="background:#f8f9fa;font-size:0.8rem;color:#555;line-height:1.6">
+                <p class="mb-2"><strong>*</strong> All college credit hours must be earned from an accredited College, University or Institution. A professional certification may be accepted in lieu of 30 college credit hours, which will be reviewed upon receipt of application.</p>
+                <p class="mb-0"><strong>**</strong> Satisfactory employment is defined as: employment conduct and behavior that exemplifies the Middletown Police Core Values of Honor, Integrity, Valor and Professionalism; reliability based on a review of tardiness and/or absenteeism; conduct that has not resulted in dismissal or a request to resign and/or rehire is not recommended; consistent positive evaluations; and a regard for safety, good work habits, respect for authority, coworkers, customers, citizens and the community.</p>
             </div>
 
             <div class="d-flex justify-content-between mt-4">
