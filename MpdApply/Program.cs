@@ -25,6 +25,9 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
+    // Add columns introduced after initial schema creation (EnsureCreated doesn't migrate)
+    try { db.Database.ExecuteSqlRaw("ALTER TABLE Applications ADD COLUMN InitialsMode TEXT"); } catch { }
+    try { db.Database.ExecuteSqlRaw("ALTER TABLE Applications ADD COLUMN InitialsImageData TEXT"); } catch { }
     await DbSeeder.SeedAsync(db);
 }
 

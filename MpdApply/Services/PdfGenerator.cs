@@ -24,7 +24,7 @@ public static class PdfGenerator
             {
                 page.Size(PageSizes.Letter);
                 page.Margin(0.75f, Unit.Inch);
-                page.DefaultTextStyle(x => x.FontSize(9).FontFamily("Arial"));
+                page.DefaultTextStyle(x => x.FontSize(9));
 
                 page.Header().Column(h =>
                 {
