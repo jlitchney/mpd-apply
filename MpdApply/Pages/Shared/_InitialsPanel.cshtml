@@ -1,0 +1,145 @@
+@* Sticky initials panel — included in Step3 and Step4 *@
+<div class="initials-panel card shadow-sm mb-4" style="position:sticky;top:0;z-index:100;border-left:4px solid #285190">
+    <div class="card-body py-2 px-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="fw-bold text-nowrap" style="color:#285190"><i class="bi bi-pen me-1"></i>Your Initials:</span>
+
+            <ul class="nav nav-pills nav-sm mb-0" id="initTabNav">
+                <li class="nav-item">
+                    <a class="nav-link active py-1 px-2 small" id="typeTabBtn" href="#">
+                        <i class="bi bi-fonts me-1"></i>Type
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link py-1 px-2 small" id="drawTabBtn" href="#">
+                        <i class="bi bi-pencil me-1"></i>Draw
+                    </a>
+                </li>
+            </ul>
+
+            <div id="typeModePanel" class="d-flex gap-2 align-items-center">
+                <input id="initialsText" class="form-control form-control-sm" style="width:70px;font-size:1.1rem" maxlength="5" placeholder="JL" />
+                <select id="initialsFont" class="form-select form-select-sm" style="width:170px">
+                    <option value="'Brush Script MT', cursive">Brush Script (cursive)</option>
+                    <option value="cursive">System Cursive</option>
+                    <option value="Georgia, serif">Georgia (serif)</option>
+                    <option value="Arial, sans-serif">Arial (print)</option>
+                </select>
+            </div>
+
+            <div id="drawModePanel" class="d-none align-items-center gap-2">
+                <div style="border:1px solid #ced4da;border-radius:4px;background:#fff;display:inline-block">
+                    <canvas id="initDrawCanvas" width="180" height="56" style="display:block;cursor:crosshair"></canvas>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="clearInitDraw">Clear</button>
+            </div>
+
+            <button type="button" class="btn btn-sm btn-mpd px-3" id="applyInitialsBtn">
+                <i class="bi bi-check2-all me-1"></i>Apply to All Fields
+            </button>
+
+            <span id="initAppliedBadge" class="badge bg-success d-none">Applied!</span>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" name="InitialsMode" id="initialsMode" />
+<input type="hidden" name="InitialsImageData" id="initialsImageData" />
+
+@section Scripts {
+<script>
+(function() {
+    const typeBtn  = document.getElementById('typeTabBtn');
+    const drawBtn  = document.getElementById('drawTabBtn');
+    const typePanel = document.getElementById('typeModePanel');
+    const drawPanel = document.getElementById('drawModePanel');
+    const applyBtn = document.getElementById('applyInitialsBtn');
+    const badge    = document.getElementById('initAppliedBadge');
+    const canvas   = document.getElementById('initDrawCanvas');
+    const modeInput = document.getElementById('initialsMode');
+    const imageInput = document.getElementById('initialsImageData');
+
+    // Mini signature pad for draw mode
+    const pad = new SignaturePad(canvas, { backgroundColor:'rgb(255,255,255)', minWidth:1.5, maxWidth:3 });
+    document.getElementById('clearInitDraw').addEventListener('click', () => pad.clear());
+
+    // Tab switching
+    typeBtn.addEventListener('click', e => { e.preventDefault(); setMode('text'); });
+    drawBtn.addEventListener('click', e => { e.preventDefault(); setMode('drawn'); });
+
+    function setMode(m) {
+        if (m === 'text') {
+            typePanel.classList.remove('d-none'); drawPanel.classList.add('d-none');
+            typeBtn.classList.add('active'); drawBtn.classList.remove('active');
+        } else {
+            drawPanel.classList.remove('d-none'); drawPanel.classList.add('d-flex');
+            typePanel.classList.add('d-none');
+            drawBtn.classList.add('active'); typeBtn.classList.remove('active');
+        }
+    }
+
+    // Apply to all fields
+    applyBtn.addEventListener('click', () => {
+        const isDrawn = drawBtn.classList.contains('active');
+        if (isDrawn) {
+            if (pad.isEmpty()) { alert('Please draw your initials first.'); return; }
+            const dataUrl = pad.toDataURL('image/png');
+            modeInput.value = 'drawn';
+            imageInput.value = dataUrl;
+            applyDrawnToFields(dataUrl);
+            localStorage.setItem('mpd_initials', JSON.stringify({ mode:'drawn', image:dataUrl }));
+        } else {
+            const text = document.getElementById('initialsText').value.trim();
+            const font = document.getElementById('initialsFont').value;
+            if (!text) { alert('Please type your initials first.'); return; }
+            modeInput.value = 'text';
+            imageInput.value = '';
+            applyTextToFields(text, font);
+            localStorage.setItem('mpd_initials', JSON.stringify({ mode:'text', text, font }));
+        }
+        badge.classList.remove('d-none');
+        setTimeout(() => badge.classList.add('d-none'), 2000);
+    });
+
+    function applyTextToFields(text, font) {
+        document.querySelectorAll('.initial-field').forEach(f => {
+            f.value = text;
+            f.style.fontFamily = font;
+            f.style.fontSize = '1.1rem';
+            f.style.backgroundImage = '';
+            f.style.color = '';
+        });
+    }
+
+    function applyDrawnToFields(dataUrl) {
+        document.querySelectorAll('.initial-field').forEach(f => {
+            f.value = '(initialed)';
+            f.style.backgroundImage = `url('${dataUrl}')`;
+            f.style.backgroundSize = 'contain';
+            f.style.backgroundRepeat = 'no-repeat';
+            f.style.backgroundPosition = 'center';
+            f.style.color = 'transparent';
+        });
+    }
+
+    // Restore from localStorage on load
+    try {
+        const saved = localStorage.getItem('mpd_initials');
+        if (saved) {
+            const data = JSON.parse(saved);
+            if (data.mode === 'text' && data.text) {
+                document.getElementById('initialsText').value = data.text;
+                if (data.font) document.getElementById('initialsFont').value = data.font;
+                modeInput.value = 'text';
+                applyTextToFields(data.text, data.font || 'cursive');
+            } else if (data.mode === 'drawn' && data.image) {
+                setMode('drawn');
+                modeInput.value = 'drawn';
+                imageInput.value = data.image;
+                applyDrawnToFields(data.image);
+            }
+        }
+    } catch(e) {}
+})();
+</script>
+}

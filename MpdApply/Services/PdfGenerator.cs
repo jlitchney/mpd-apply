@@ -11,6 +11,13 @@ public static class PdfGenerator
     {
         QuestPDF.Settings.License = LicenseType.Community;
 
+        byte[]? initImg = null;
+        if (a.InitialsMode == "drawn" && !string.IsNullOrWhiteSpace(a.InitialsImageData))
+        {
+            var raw = a.InitialsImageData.Replace("data:image/png;base64,", "");
+            initImg = Convert.FromBase64String(raw);
+        }
+
         return Document.Create(container =>
         {
             container.Page(page =>
@@ -86,59 +93,59 @@ public static class PdfGenerator
 
                     // ── Section 3: COPT Standards ──
                     Section(col, "COPT Eligibility Standards (Initials)");
-                    InitialRow(col, a.InitCoptCitizenship, "United States Citizenship (native or naturalized)");
-                    InitialRow(col, a.InitCopt18, "18 years or older for Public Safety Aide");
-                    InitialRow(col, a.InitCopt21, "21 years or older for Police Officer");
-                    InitialRow(col, a.InitCoptSenses, "No impediment of the senses");
-                    InitialRow(col, a.InitCoptVision, "Acuity of vision not more than 20/200 corrected to 20/20 in each eye");
-                    InitialRow(col, a.InitCoptColorVision, "Ability to distinguish between colors red, green, and amber; no pathology; acceptable depth perception");
-                    InitialRow(col, a.InitCoptHearing, "Possess normal hearing in both ears per current standard");
-                    InitialRow(col, a.InitCoptNoCommunicable, "Have no communicable diseases");
-                    InitialRow(col, a.InitCoptNoDeformity, "Have no physical deformities detrimental to proper performance of police duties");
-                    InitialRow(col, a.InitCoptDrugScreen, "Must pass a drug-screening test prior to appointment or attendance of a Police training academy");
-                    InitialRow(col, a.InitCoptWeight, "Weight must be proportionate to height and build or body fat percentage");
-                    InitialRow(col, a.InitCoptMilitary, "Honorable discharge or positive conduct during military service");
-                    InitialRow(col, a.InitCoptNoFelony, "No Felony or Misdemeanor conviction prohibiting the possession of a firearm");
-                    InitialRow(col, a.InitCoptDl, "Valid Driver's License for Police Officer");
+                    InitialRow(col, initImg, a.InitCoptCitizenship, "United States Citizenship (native or naturalized)");
+                    InitialRow(col, initImg, a.InitCopt18, "18 years or older for Public Safety Aide");
+                    InitialRow(col, initImg, a.InitCopt21, "21 years or older for Police Officer");
+                    InitialRow(col, initImg, a.InitCoptSenses, "No impediment of the senses");
+                    InitialRow(col, initImg, a.InitCoptVision, "Acuity of vision not more than 20/200 corrected to 20/20 in each eye");
+                    InitialRow(col, initImg, a.InitCoptColorVision, "Ability to distinguish between colors red, green, and amber; no pathology; acceptable depth perception");
+                    InitialRow(col, initImg, a.InitCoptHearing, "Possess normal hearing in both ears per current standard");
+                    InitialRow(col, initImg, a.InitCoptNoCommunicable, "Have no communicable diseases");
+                    InitialRow(col, initImg, a.InitCoptNoDeformity, "Have no physical deformities detrimental to proper performance of police duties");
+                    InitialRow(col, initImg, a.InitCoptDrugScreen, "Must pass a drug-screening test prior to appointment or attendance of a Police training academy");
+                    InitialRow(col, initImg, a.InitCoptWeight, "Weight must be proportionate to height and build or body fat percentage");
+                    InitialRow(col, initImg, a.InitCoptMilitary, "Honorable discharge or positive conduct during military service");
+                    InitialRow(col, initImg, a.InitCoptNoFelony, "No Felony or Misdemeanor conviction prohibiting the possession of a firearm");
+                    InitialRow(col, initImg, a.InitCoptDl, "Valid Driver's License for Police Officer");
 
                     // ── Education ──
                     Section(col, "Education / Work History Standard");
-                    InitialRow(col, a.InitEduStandard, a.EduStandardMet ?? "");
+                    InitialRow(col, initImg, a.InitEduStandard, a.EduStandardMet ?? "");
 
                     // ── Section 4: Disqualification ──
                     Section(col, "Criminal Record Disqualification Acknowledgements (Initials)");
-                    InitialRow(col, a.InitCriminal1, "Any felony or domestic violence conviction is an automatic disqualification.");
-                    InitialRow(col, a.InitCriminal2, "Any arrest or conviction indicating a pattern of disregard for the law may result in disqualification.");
-                    InitialRow(col, a.InitCriminal3, "Any commitments for a mental disorder preventing possession of a firearm is a disqualification.");
-                    InitialRow(col, a.InitCriminal4, "Arrest or conviction for all other crimes are subject to review at the time of application.");
-                    InitialRow(col, a.InitCriminal5, "Arrest for any offense must be expunged, and conviction must be pardoned, prior to submitting an application.");
-                    InitialRow(col, a.InitCriminal6, "Any criminal activity that would be considered a Felony under Federal Law is a disqualification.");
+                    InitialRow(col, initImg, a.InitCriminal1, "Any felony or domestic violence conviction is an automatic disqualification.");
+                    InitialRow(col, initImg, a.InitCriminal2, "Any arrest or conviction indicating a pattern of disregard for the law may result in disqualification.");
+                    InitialRow(col, initImg, a.InitCriminal3, "Any commitments for a mental disorder preventing possession of a firearm is a disqualification.");
+                    InitialRow(col, initImg, a.InitCriminal4, "Arrest or conviction for all other crimes are subject to review at the time of application.");
+                    InitialRow(col, initImg, a.InitCriminal5, "Arrest for any offense must be expunged, and conviction must be pardoned, prior to submitting an application.");
+                    InitialRow(col, initImg, a.InitCriminal6, "Any criminal activity that would be considered a Felony under Federal Law is a disqualification.");
 
                     Section(col, "Drug Usage Disqualification Acknowledgements (Initials)");
-                    InitialRow(col, a.InitDrug1, "Any use of mind-altering hallucinogenic drug (LSD, PCP, etc.), heroin or derivatives is an automatic disqualification.");
-                    InitialRow(col, a.InitDrug2, "Any use of an illegal drug within two (2) years prior to application is an automatic disqualification.");
-                    InitialRow(col, a.InitDrug3, "More than 50 experimental uses of Marijuana and/or more than 2 uses of Cocaine may result in disqualification.");
-                    InitialRow(col, a.InitDrug4, "The sale or delivery of any controlled substance after age 21 will be automatic disqualification.");
-                    InitialRow(col, a.InitDrug5, "Any use of all other illegal drugs will be subject to review at the time of application.");
-                    InitialRow(col, a.InitDrug6, "All other drug use, including illegally using prescribed drugs, is subject to review.");
-                    InitialRow(col, a.InitDrug7, "Any use of a controlled substance after having filed an application for employment as a Police Officer.");
-                    InitialRow(col, a.InitDrug8, "Any history or pattern of extensive use or abuse of a controlled substance or alcohol without evidence of rehabilitation.");
+                    InitialRow(col, initImg, a.InitDrug1, "Any use of mind-altering hallucinogenic drug (LSD, PCP, etc.), heroin or derivatives is an automatic disqualification.");
+                    InitialRow(col, initImg, a.InitDrug2, "Any use of an illegal drug within two (2) years prior to application is an automatic disqualification.");
+                    InitialRow(col, initImg, a.InitDrug3, "More than 50 experimental uses of Marijuana and/or more than 2 uses of Cocaine may result in disqualification.");
+                    InitialRow(col, initImg, a.InitDrug4, "The sale or delivery of any controlled substance after age 21 will be automatic disqualification.");
+                    InitialRow(col, initImg, a.InitDrug5, "Any use of all other illegal drugs will be subject to review at the time of application.");
+                    InitialRow(col, initImg, a.InitDrug6, "All other drug use, including illegally using prescribed drugs, is subject to review.");
+                    InitialRow(col, initImg, a.InitDrug7, "Any use of a controlled substance after having filed an application for employment as a Police Officer.");
+                    InitialRow(col, initImg, a.InitDrug8, "Any history or pattern of extensive use or abuse of a controlled substance or alcohol without evidence of rehabilitation.");
 
                     Section(col, "Driving History Disqualification Acknowledgements (Initials)");
-                    InitialRow(col, a.InitDriving1, "Must possess a current and valid driver's license and at least one year of driving experience.");
-                    InitialRow(col, a.InitDriving2, "A DUI conviction within previous 5 years is an automatic disqualification.");
-                    InitialRow(col, a.InitDriving3, "Any driving record/history indicating poor, dangerous, or undesirable driving habits may result in disqualification.");
-                    InitialRow(col, a.InitDriving4, "Any driving record/history indicating that operation of an automobile by the applicant might endanger the public.");
-                    InitialRow(col, a.InitDriving5, "Any driving record/history indicating the applicant has used narcotics or alcohol to impair their ability to drive.");
-                    InitialRow(col, a.InitDriving6, "Any license suspension or revocation within three years of the closing date is an automatic disqualification.");
-                    InitialRow(col, a.InitDriving7, "Any alcohol-related driving arrests and overall driving history will be subject to review.");
-                    InitialRow(col, a.InitDriving8, "Motor vehicle conviction for Failing to Stop, Leaving the Scene, Criminal Negligence, or False Statements on license application.");
-                    InitialRow(col, a.InitDriving9, "Any driving-related automatic disqualification as listed above.");
+                    InitialRow(col, initImg, a.InitDriving1, "Must possess a current and valid driver's license and at least one year of driving experience.");
+                    InitialRow(col, initImg, a.InitDriving2, "A DUI conviction within previous 5 years is an automatic disqualification.");
+                    InitialRow(col, initImg, a.InitDriving3, "Any driving record/history indicating poor, dangerous, or undesirable driving habits may result in disqualification.");
+                    InitialRow(col, initImg, a.InitDriving4, "Any driving record/history indicating that operation of an automobile by the applicant might endanger the public.");
+                    InitialRow(col, initImg, a.InitDriving5, "Any driving record/history indicating the applicant has used narcotics or alcohol to impair their ability to drive.");
+                    InitialRow(col, initImg, a.InitDriving6, "Any license suspension or revocation within three years of the closing date is an automatic disqualification.");
+                    InitialRow(col, initImg, a.InitDriving7, "Any alcohol-related driving arrests and overall driving history will be subject to review.");
+                    InitialRow(col, initImg, a.InitDriving8, "Motor vehicle conviction for Failing to Stop, Leaving the Scene, Criminal Negligence, or False Statements on license application.");
+                    InitialRow(col, initImg, a.InitDriving9, "Any driving-related automatic disqualification as listed above.");
 
                     Section(col, "Employment Acknowledgements (Initials)");
-                    InitialRow(col, a.InitAck1, "The Police Department is a 24 hour/7 day a week operation. Officers work rotating day and night shifts and holidays.");
-                    InitialRow(col, a.InitAck2, "The Police Department is a para-military organization. Officers wear an authorized uniform and maintain grooming standards.");
-                    InitialRow(col, a.InitAck3, "Candidate must be able to achieve minimum standard during fitness testing: Sit-Ups (22), Push-Ups (12), 1.5 Mile Run (16:31).");
+                    InitialRow(col, initImg, a.InitAck1, "The Police Department is a 24 hour/7 day a week operation. Officers work rotating day and night shifts and holidays.");
+                    InitialRow(col, initImg, a.InitAck2, "The Police Department is a para-military organization. Officers wear an authorized uniform and maintain grooming standards.");
+                    InitialRow(col, initImg, a.InitAck3, "Candidate must be able to achieve minimum standard during fitness testing: Sit-Ups (22), Push-Ups (12), 1.5 Mile Run (16:31).");
 
                     // ── Background Check Signature ──
                     Section(col, "Background Check Authorization");
@@ -230,12 +237,15 @@ public static class PdfGenerator
         });
     }
 
-    private static void InitialRow(ColumnDescriptor col, string? initials, string text)
+    private static void InitialRow(ColumnDescriptor col, byte[]? initialsImage, string? initials, string text)
     {
         col.Item().PaddingTop(2).Row(r =>
         {
-            r.ConstantItem(35).Border(0.5f).BorderColor(Colors.Grey.Lighten2)
-                .AlignCenter().AlignMiddle().Text(initials ?? "").Bold().FontSize(8);
+            var box = r.ConstantItem(40).Border(0.5f).BorderColor(Colors.Grey.Lighten2).AlignCenter().AlignMiddle();
+            if (initialsImage != null)
+                box.Height(20).Image(initialsImage).FitArea();
+            else
+                box.Text(initials ?? "").Bold().FontSize(8);
             r.RelativeItem().PaddingLeft(6).Text(text).FontSize(8);
         });
     }

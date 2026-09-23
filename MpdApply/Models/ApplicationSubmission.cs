@@ -7,6 +7,8 @@ public class ApplicationSubmission
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? SubmittedAt { get; set; }
     public string? IpAddress { get; set; }
+    public string? InitialsMode { get; set; }      // "text" or "drawn"
+    public string? InitialsImageData { get; set; } // base64 PNG when drawn
 
     // Step 1 – Personal Information
     public DateTime ApplicationDate { get; set; } = DateTime.Today;

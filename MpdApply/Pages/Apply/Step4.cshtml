@@ -5,11 +5,12 @@
 <div class="card shadow-sm">
     <div class="card-header-mpd">Step 4 of 5 &mdash; Disqualification Acknowledgements</div>
     <div class="card-body">
+        <form method="post">
+        <partial name="_InitialsPanel" />
         <div class="alert alert-warning small mb-3">
             <i class="bi bi-exclamation-triangle me-1"></i>
             Please initial next to each item to confirm you have read and understand each disqualification standard.
         </div>
-        <form method="post">
 
             <div class="section-divider">Criminal Record and Activity</div>
             <div class="ack-item"><input asp-for="InitCriminal1" class="initial-field form-control" maxlength="5" placeholder="Initials" style="width:70px;flex-shrink:0" /><div class="ack-text">Any felony or domestic violence conviction is an automatic disqualification.</div></div>

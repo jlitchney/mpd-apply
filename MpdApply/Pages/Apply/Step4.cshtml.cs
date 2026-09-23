@@ -35,6 +35,8 @@ public class Step4Model : PageModel
     [BindProperty] public string? InitAck1 { get; set; }
     [BindProperty] public string? InitAck2 { get; set; }
     [BindProperty] public string? InitAck3 { get; set; }
+    [BindProperty] public string? InitialsMode { get; set; }
+    [BindProperty] public string? InitialsImageData { get; set; }
 
     public IActionResult OnGet()
     {
@@ -61,6 +63,8 @@ public class Step4Model : PageModel
         app.InitDriving7 = InitDriving7; app.InitDriving8 = InitDriving8;
         app.InitDriving9 = InitDriving9;
         app.InitAck1 = InitAck1; app.InitAck2 = InitAck2; app.InitAck3 = InitAck3;
+        if (!string.IsNullOrWhiteSpace(InitialsMode)) app.InitialsMode = InitialsMode;
+        if (!string.IsNullOrWhiteSpace(InitialsImageData)) app.InitialsImageData = InitialsImageData;
 
         await _db.SaveChangesAsync();
         return RedirectToPage("Step5");

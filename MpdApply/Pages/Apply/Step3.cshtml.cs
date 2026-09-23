@@ -25,6 +25,8 @@ public class Step3Model : PageModel
     [BindProperty] public string? InitCoptDl { get; set; }
     [BindProperty] public string? InitEduStandard { get; set; }
     [BindProperty] public string? EduStandardMet { get; set; }
+    [BindProperty] public string? InitialsMode { get; set; }
+    [BindProperty] public string? InitialsImageData { get; set; }
 
     public IActionResult OnGet()
     {
@@ -55,6 +57,9 @@ public class Step3Model : PageModel
         app.InitCoptDl = InitCoptDl;
         app.InitEduStandard = InitEduStandard;
         app.EduStandardMet = EduStandardMet;
+        app.InitialsMode = InitialsMode;
+        if (!string.IsNullOrWhiteSpace(InitialsImageData))
+            app.InitialsImageData = InitialsImageData;
 
         await _db.SaveChangesAsync();
         return RedirectToPage("Step4");
