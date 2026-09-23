@@ -1,0 +1,26 @@
+@page
+@model MpdApply.Pages.Admin.LoginModel
+@{ ViewData["Title"] = "Admin Login"; Layout = "_Layout"; }
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header-mpd">
+                <i class="bi bi-shield-lock me-2"></i>Admin Access
+            </div>
+            <div class="card-body">
+                @if (Model.Error != null)
+                {
+                    <div class="alert alert-danger small">@Model.Error</div>
+                }
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input asp-for="Password" class="form-control" autofocus />
+                    </div>
+                    <button type="submit" class="btn btn-mpd w-100">Sign In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

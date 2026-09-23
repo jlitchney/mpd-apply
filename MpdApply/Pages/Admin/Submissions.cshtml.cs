@@ -20,16 +20,22 @@ public class SubmissionsModel : PageModel
 
     public List<ApplicationSubmission> Applications { get; set; } = new();
 
-    public async Task OnGetAsync()
+    public async Task<IActionResult> OnGetAsync()
     {
+        var auth = LoginModel.RequireAuth(this);
+        if (auth != null) return auth;
+
         Applications = await _db.Applications
             .Where(a => a.Status == "Submitted")
             .OrderByDescending(a => a.SubmittedAt)
             .ToListAsync();
+        return Page();
     }
 
     public async Task<IActionResult> OnPostResendAsync(Guid id)
     {
+        var auth = LoginModel.RequireAuth(this);
+        if (auth != null) return auth;
         var app = await _db.Applications.FindAsync(id);
         if (app == null) return NotFound();
 
@@ -41,8 +47,17 @@ public class SubmissionsModel : PageModel
         return RedirectToPage();
     }
 
+    public IActionResult OnPostLogout()
+    {
+        HttpContext.Session.Remove("AdminAuth");
+        return RedirectToPage("/Admin/Login");
+    }
+
     public async Task<IActionResult> OnGetDownloadAsync(Guid id)
     {
+        var auth = LoginModel.RequireAuth(this);
+        if (auth != null) return auth;
+
         var app = await _db.Applications.FindAsync(id);
         if (app == null) return NotFound();
 
