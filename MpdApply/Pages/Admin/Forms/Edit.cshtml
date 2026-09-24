@@ -49,8 +49,8 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label class="form-label fw-bold">Schema JSON</label>
-                <textarea asp-for="Input.SchemaJson" class="form-control font-monospace" rows="30" style="font-size:0.78rem"></textarea>
+                <label class="form-label fw-bold">Form Schema</label>
+                <partial name="_VisualFormBuilder" model='@((Model.Input.SchemaJson ?? "", "Input.SchemaJson"))' />
             </div>
             <button type="submit" class="btn btn-success"><i class="bi bi-floppy me-1"></i> Save Changes</button>
         </form>

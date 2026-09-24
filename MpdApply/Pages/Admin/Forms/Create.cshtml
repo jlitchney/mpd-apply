@@ -80,13 +80,8 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">
-                            Form Schema (JSON)
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#schemaHelp"
-                               class="ms-2 small text-muted"><i class="bi bi-question-circle"></i> Help</a>
-                        </label>
-                        <textarea asp-for="Input.SchemaJson" class="form-control font-monospace"
-                                  rows="20" style="font-size:0.78rem"></textarea>
+                        <label class="form-label fw-bold">Form Schema</label>
+                        <partial name="_VisualFormBuilder" model='@((Model.Input.SchemaJson ?? "", "Input.SchemaJson"))' />
                     </div>
 
                     <button type="submit" class="btn btn-success">
@@ -98,15 +93,6 @@
     </div>
 </div>
 
-<!-- Schema Help Modal -->
-<div class="modal fade" id="schemaHelp" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Form Schema Reference</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body small font-monospace" style="white-space:pre-wrap">@MpdApply.Pages.Admin.Forms.CreateModel.SchemaHelpText</div>
-        </div>
-    </div>
-</div>
 
 @section Scripts {
 <script>
