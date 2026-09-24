@@ -38,13 +38,27 @@
     </style>
 </head>
 <body>
+    @inject MpdApply.Data.AppDbContext _layoutDb
+    @{
+        var _logoSetting = _layoutDb.Settings.FirstOrDefault(s => s.Key == "LogoBase64");
+        var _agencySetting = _layoutDb.Settings.FirstOrDefault(s => s.Key == "AgencyName");
+        var _logoBase64 = _logoSetting?.Value;
+        var _agencyName = _agencySetting?.Value ?? "Town of Middletown Police Department";
+    }
     <div class="mpd-header">
         <div class="container">
             <div class="d-flex align-items-center gap-3">
-                <i class="bi bi-shield-fill fs-3"></i>
+                @if (!string.IsNullOrEmpty(_logoBase64))
+                {
+                    <img src="@_logoBase64" style="height:48px;max-width:80px;object-fit:contain;filter:brightness(10)" />
+                }
+                else
+                {
+                    <i class="bi bi-shield-fill fs-3"></i>
+                }
                 <div>
-                    <h1>Town of Middletown Police Department</h1>
-                    <p>Employment Application</p>
+                    <h1>@_agencyName</h1>
+                    <p>@(ViewData["Title"] ?? "Online Forms")</p>
                 </div>
             </div>
         </div>

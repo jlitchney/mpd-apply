@@ -14,7 +14,7 @@ public class EmailService
         _log = log;
     }
 
-    public async Task SendApplicationAsync(string recipientEmail, string applicantName, byte[] pdfBytes)
+    public async Task SendApplicationAsync(string recipientEmail, string applicantName, byte[] pdfBytes, string? subject = null)
     {
         var host = _config["Smtp:Host"];
         var port = int.TryParse(_config["Smtp:Port"], out var p) ? p : 587;
@@ -28,7 +28,7 @@ public class EmailService
             return;
         }
 
-        var subject = $"New Employment Application — {applicantName}";
+        subject ??= $"New Submission — {applicantName}";
         var body = $"""
             <p>A new employment application has been submitted.</p>
             <p><strong>Applicant:</strong> {applicantName}</p>

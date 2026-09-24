@@ -1,0 +1,167 @@
+@using MpdApply.Models
+@model (List<FormFieldDef> Fields, Dictionary<string, string> Values)
+
+@{
+    bool hasSigs = Model.Fields.Any(f => f.Type == "signature");
+}
+
+<div class="row g-3">
+@foreach (var field in Model.Fields)
+{
+    var val = Model.Values.TryGetValue(field.Key, out var v) ? v : "";
+    var col = field.Width switch {
+        "half"    => "col-md-6",
+        "third"   => "col-md-4",
+        "quarter" => "col-md-3",
+        _         => "col-12"
+    };
+
+    switch (field.Type)
+    {
+        case "section_header":
+            <div class="col-12"><div class="section-divider">@field.Label</div></div>
+            break;
+
+        case "paragraph":
+            <div class="col-12">
+                <div class="p-3 rounded mb-2" style="background:#f8f9fa;font-size:0.82rem;line-height:1.7;color:#444;white-space:pre-line">@field.Content</div>
+            </div>
+            break;
+
+        case "initials_panel":
+            <div class="col-12"><partial name="_InitialsPanel" /></div>
+            break;
+
+        case "initials_reminder":
+            <div class="col-12"><partial name="_InitialsReminder" /></div>
+            break;
+
+        case "initials":
+            <div class="col-12">
+                <div class="ack-item">
+                    <input name="@field.Key" class="initial-field" value="@val" style="display:none" />
+                    <div class="ack-text">
+                        @field.Label
+                        @if (field.Required) { <span class="text-danger ms-1">*</span> }
+                    </div>
+                </div>
+            </div>
+            break;
+
+        case "textarea":
+            <div class="@col">
+                <label class="form-label">@field.Label @if (field.Required) {<span class="text-danger">*</span>}</label>
+                <textarea name="@field.Key" class="form-control" rows="@field.Rows"
+                          placeholder="@field.Placeholder" @(field.Required ? "required" : "")>@val</textarea>
+                @if (!string.IsNullOrEmpty(field.HelpText)) { <div class="form-text">@field.HelpText</div> }
+            </div>
+            break;
+
+        case "select":
+            <div class="@col">
+                <label class="form-label">@field.Label @if (field.Required) {<span class="text-danger">*</span>}</label>
+                <select name="@field.Key" class="form-select" @(field.Required ? "required" : "")>
+                    <option value="">-- Select --</option>
+                    @foreach (var opt in field.Options)
+                    {
+                        <option value="@opt" @(val == opt ? "selected" : "")>@opt</option>
+                    }
+                </select>
+            </div>
+            break;
+
+        case "radio":
+            <div class="@col">
+                <label class="form-label">@field.Label @if (field.Required) {<span class="text-danger">*</span>}</label>
+                <div class="d-flex flex-wrap gap-3 mt-1">
+                    @foreach (var opt in field.Options)
+                    {
+                        var rid = $"{field.Key}_{opt.Replace(" ", "_")}";
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="@field.Key" id="@rid"
+                                   value="@opt" @(val == opt ? "checked" : "") @(field.Required ? "required" : "") />
+                            <label class="form-check-label" for="@rid">@opt</label>
+                        </div>
+                    }
+                </div>
+            </div>
+            break;
+
+        case "yesno":
+            <div class="@col">
+                <label class="form-label">@field.Label @if (field.Required) {<span class="text-danger">*</span>}</label>
+                <div class="d-flex gap-3 mt-1">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="@field.Key" id="@(field.Key)_yes"
+                               value="Yes" @(val == "Yes" ? "checked" : "") />
+                        <label class="form-check-label" for="@(field.Key)_yes">Yes</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="@field.Key" id="@(field.Key)_no"
+                               value="No" @(val == "No" ? "checked" : "") />
+                        <label class="form-check-label" for="@(field.Key)_no">No</label>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(field.HelpText)) { <div class="form-text">@field.HelpText</div> }
+            </div>
+            break;
+
+        case "checkbox":
+            <div class="@col">
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" name="@field.Key"
+                           id="@field.Key" value="true" @(val == "true" ? "checked" : "") />
+                    <label class="form-check-label" for="@field.Key">@field.Label</label>
+                </div>
+            </div>
+            break;
+
+        case "signature":
+            <div class="@col">
+                <label class="form-label fw-bold">@field.Label @if (field.Required) {<span class="text-danger">*</span>}</label>
+                <div class="sig-pad-wrap mb-2" style="max-width:500px">
+                    <canvas class="sig-canvas" data-key="@field.Key"
+                            width="500" height="120" style="display:block;cursor:crosshair"></canvas>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary sig-clear"
+                        data-key="@field.Key">Clear</button>
+                <input type="hidden" name="@field.Key" id="sig_@field.Key" />
+            </div>
+            break;
+
+        default: // text, email, tel, date, number
+            var itype = field.Type is "text" or "email" or "tel" or "date" or "number" ? field.Type : "text";
+            <div class="@col">
+                <label class="form-label">@field.Label @if (field.Required) {<span class="text-danger">*</span>}</label>
+                <input type="@itype" name="@field.Key" class="form-control"
+                       value="@val" placeholder="@field.Placeholder"
+                       @(field.Required ? "required" : "") />
+                @if (!string.IsNullOrEmpty(field.HelpText)) { <div class="form-text">@field.HelpText</div> }
+            </div>
+            break;
+    }
+}
+</div>
+
+@if (hasSigs)
+{
+<script>
+var _sigPads = {};
+document.querySelectorAll('.sig-canvas').forEach(function(c) {
+    var pad = new SignaturePad(c, { backgroundColor: 'rgb(255,255,255)' });
+    _sigPads[c.dataset.key] = pad;
+});
+document.querySelectorAll('.sig-clear').forEach(function(btn) {
+    btn.addEventListener('click', function() { _sigPads[btn.dataset.key].clear(); });
+});
+// Capture all signatures on submit
+document.querySelectorAll('form').forEach(function(form) {
+    form.addEventListener('submit', function() {
+        Object.keys(_sigPads).forEach(function(k) {
+            var h = document.getElementById('sig_' + k);
+            if (h) h.value = _sigPads[k].isEmpty() ? '' : _sigPads[k].toDataURL('image/png');
+        });
+    });
+});
+</script>
+}

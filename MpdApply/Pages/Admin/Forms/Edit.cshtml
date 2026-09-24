@@ -1,0 +1,58 @@
+@page "{id:guid}"
+@model MpdApply.Pages.Admin.Forms.EditModel
+@{ ViewData["Title"] = $"Edit — {Model.Template.Name}"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Edit: @Model.Template.Name</h4>
+    <div class="d-flex gap-2">
+        <a href="/Forms/@Model.Template.Slug" target="_blank" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Preview
+        </a>
+        <a asp-page="/Admin/Forms/Index" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+    </div>
+</div>
+
+@if (TempData["Message"] != null) { <div class="alert alert-success">@TempData["Message"]</div> }
+@if (TempData["Error"] != null)   { <div class="alert alert-danger">@TempData["Error"]</div> }
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            <div class="row g-3 mb-3">
+                <div class="col-md-7">
+                    <label class="form-label">Name</label>
+                    <input asp-for="Input.Name" class="form-control" required />
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Slug</label>
+                    <div class="input-group">
+                        <span class="input-group-text text-muted">/Forms/</span>
+                        <input asp-for="Input.Slug" class="form-control" required
+                               pattern="[a-z0-9\-]+" title="lowercase letters, numbers, hyphens only" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Description</label>
+                    <input asp-for="Input.Description" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Recipient Email</label>
+                    <input asp-for="Input.RecipientEmail" class="form-control" type="email" placeholder="Global setting" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="form-check mb-2">
+                        <input asp-for="Input.IsPublished" class="form-check-input" id="pub" />
+                        <label class="form-check-label" for="pub">Published</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Schema JSON</label>
+                <textarea asp-for="Input.SchemaJson" class="form-control font-monospace" rows="30" style="font-size:0.78rem"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success"><i class="bi bi-floppy me-1"></i> Save Changes</button>
+        </form>
+    </div>
+</div>

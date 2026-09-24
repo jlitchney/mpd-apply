@@ -1,0 +1,124 @@
+@page
+@model MpdApply.Pages.Admin.Forms.CreateModel
+@{ ViewData["Title"] = "New Form"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">New Form</h4>
+    <a asp-page="/Admin/Forms/Index" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to Forms
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header-mpd">Import from PDF (AI-powered)</div>
+            <div class="card-body">
+                <p class="text-muted small">Upload an existing PDF form and the AI will generate a digital version automatically. Review and adjust the schema before saving.</p>
+                @if (!Model.ClaudeConfigured)
+                {
+                    <div class="alert alert-warning small">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        Claude API key not configured. Set the <code>Claude__ApiKey</code> environment variable in Railway to enable AI import.
+                    </div>
+                }
+                <form method="post" enctype="multipart/form-data" asp-page-handler="FromPdf" id="pdfForm">
+                    <div class="mb-3">
+                        <label class="form-label">Form Name <span class="text-danger">*</span></label>
+                        <input name="pdfName" class="form-control" placeholder="e.g. Ride-Along Application" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">PDF File <span class="text-danger">*</span></label>
+                        <input type="file" name="pdfFile" class="form-control" accept=".pdf" required />
+                    </div>
+                    <button type="submit" class="btn btn-mpd w-100" @(!Model.ClaudeConfigured ? "disabled" : "")>
+                        <i class="bi bi-magic me-1"></i> Generate Form from PDF
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header-mpd">Create / Edit Form Manually</div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="Save">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-7">
+                            <label class="form-label">Form Name <span class="text-danger">*</span></label>
+                            <input asp-for="Input.Name" class="form-control" placeholder="e.g. Volunteer Application" required />
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">URL Slug <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text text-muted">/Forms/</span>
+                                <input asp-for="Input.Slug" class="form-control" placeholder="volunteer-app" required
+                                       pattern="[a-z0-9\-]+" title="lowercase letters, numbers, hyphens only" />
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <input asp-for="Input.Description" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Recipient Email</label>
+                            <input asp-for="Input.RecipientEmail" class="form-control" type="email"
+                                   placeholder="Leave blank to use global setting" />
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <input asp-for="Input.IsPublished" class="form-check-input" id="pub" />
+                                <label class="form-check-label" for="pub">Published</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            Form Schema (JSON)
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#schemaHelp"
+                               class="ms-2 small text-muted"><i class="bi bi-question-circle"></i> Help</a>
+                        </label>
+                        <textarea asp-for="Input.SchemaJson" class="form-control font-monospace"
+                                  rows="20" style="font-size:0.78rem"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-floppy me-1"></i> Save Form
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Schema Help Modal -->
+<div class="modal fade" id="schemaHelp" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Form Schema Reference</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body small font-monospace" style="white-space:pre-wrap">@MpdApply.Pages.Admin.Forms.CreateModel.SchemaHelpText</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// Auto-generate slug from name
+document.querySelector('[name="Input.Name"]').addEventListener('input', function() {
+    var slug = document.querySelector('[name="Input.Slug"]');
+    if (!slug.value || slug.dataset.userEdited !== 'true') {
+        slug.value = this.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    }
+});
+document.querySelector('[name="Input.Slug"]').addEventListener('input', function() {
+    this.dataset.userEdited = 'true';
+});
+</script>
+}

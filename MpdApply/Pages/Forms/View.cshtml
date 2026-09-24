@@ -1,0 +1,75 @@
+@page "/Forms/{slug}/{page:int?}"
+@model MpdApply.Pages.Forms.ViewModel
+@{ ViewData["Title"] = Model.Template.Name; }
+
+@if (Model.TotalPages > 1)
+{
+    <div class="step-bar mb-3">
+        <div class="container">
+            <div class="row g-0">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    var pg = Model.Template.Schema.Pages[i - 1];
+                    var cls = i == Model.CurrentPage ? "active" : (i < Model.CurrentPage ? "done" : "");
+                    <div class="col step-item @cls">
+                        <div class="d-flex flex-column align-items-center">
+                            <span class="step-num">@(i < Model.CurrentPage ? "✓" : i.ToString())</span>
+                            <span>@pg.Title</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-header-mpd">
+        @Model.PageDef.Title
+        @if (Model.TotalPages > 1)
+        {
+            <span class="fw-normal opacity-75 ms-2 small">— Page @Model.CurrentPage of @Model.TotalPages</span>
+        }
+    </div>
+    <div class="card-body">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.PageDef.Intro))
+        {
+            <div class="alert mb-3" style="background:#e8efff;border-left:4px solid #285190;font-size:0.85rem">
+                @Model.PageDef.Intro
+            </div>
+        }
+
+        <form method="post">
+            <input type="hidden" name="CurrentPage" value="@Model.CurrentPage" />
+            <partial name="_FormFields" model="@((Model.PageDef.Fields, Model.SessionValues))" />
+
+            <div class="d-flex justify-content-between mt-4">
+                @if (Model.CurrentPage > 1)
+                {
+                    <a href="/Forms/@Model.Template.Slug/@(Model.CurrentPage - 1)" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back
+                    </a>
+                }
+                else { <span></span> }
+
+                @if (Model.CurrentPage < Model.TotalPages)
+                {
+                    <button type="submit" class="btn btn-mpd px-4">
+                        Next <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="bi bi-send me-1"></i> Submit
+                    </button>
+                }
+            </div>
+        </form>
+    </div>
+</div>
