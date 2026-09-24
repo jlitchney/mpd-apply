@@ -28,9 +28,18 @@ public class FormPageDef
     [JsonPropertyName("fields")] public List<FormFieldDef> Fields { get; set; } = [];
 }
 
+public class PdfStyleDef
+{
+    [JsonPropertyName("accentColor")] public string AccentColor { get; set; } = "#285190";
+    [JsonPropertyName("fieldStyle")]  public string FieldStyle  { get; set; } = "underline"; // "underline" | "box"
+    [JsonPropertyName("fontSize")]    public int    FontSize    { get; set; } = 9;
+    [JsonPropertyName("compact")]     public bool   Compact     { get; set; } = false;
+}
+
 public class FormSchemaDef
 {
-    [JsonPropertyName("pages")] public List<FormPageDef> Pages { get; set; } = [];
+    [JsonPropertyName("pages")]    public List<FormPageDef> Pages    { get; set; } = [];
+    [JsonPropertyName("pdfStyle")] public PdfStyleDef       PdfStyle { get; set; } = new();
 
     public static FormSchemaDef Parse(string json)
     {

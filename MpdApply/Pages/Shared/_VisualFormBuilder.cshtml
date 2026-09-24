@@ -10,6 +10,11 @@
         </button>
     </li>
     <li class="nav-item">
+        <button type="button" class="nav-link" id="fb-tab-pdf" onclick="fbSwitchTab('pdf')">
+            <i class="bi bi-file-earmark-pdf me-1"></i>PDF Style
+        </button>
+    </li>
+    <li class="nav-item">
         <button type="button" class="nav-link" id="fb-tab-json" onclick="fbSwitchTab('json')">
             <i class="bi bi-code-slash me-1"></i>JSON
         </button>
@@ -32,6 +37,45 @@
     <textarea name="@Model.InputName" id="@inputId"
               class="form-control font-monospace border-0 rounded-bottom"
               rows="22" style="font-size:.78rem">@Model.Json</textarea>
+</div>
+
+<div id="fb-pane-pdf" class="border border-top-0 rounded-bottom p-3" style="display:none">
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label fw-semibold small">Accent Color</label>
+            <input type="color" id="fb-pdf-color" class="form-control form-control-color w-100"
+                   value="#285190" onchange="fbUpdatePdfStyle()" />
+            <div class="form-text" style="font-size:.71rem">Section headers &amp; dividers</div>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-semibold small">Field Style</label>
+            <select id="fb-pdf-fieldstyle" class="form-select form-select-sm" onchange="fbUpdatePdfStyle()">
+                <option value="underline">Underline (classic form)</option>
+                <option value="box">Box (bordered cells)</option>
+            </select>
+            <div class="form-text" style="font-size:.71rem">How field values appear in the PDF</div>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-semibold small">Font Size</label>
+            <select id="fb-pdf-fontsize" class="form-select form-select-sm" onchange="fbUpdatePdfStyle()">
+                <option value="8">Small (8pt)</option>
+                <option value="9">Normal (9pt)</option>
+                <option value="10">Large (10pt)</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end pb-2">
+            <div class="form-check">
+                <input type="checkbox" id="fb-pdf-compact" class="form-check-input" onchange="fbUpdatePdfStyle()" />
+                <label class="form-check-label small" for="fb-pdf-compact">Compact spacing</label>
+                <div class="form-text" style="font-size:.71rem">Tighter gaps between fields</div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3 p-2 rounded" style="background:#e8f0fe;border:1px solid #c6d4f3;font-size:.78rem;color:#285190">
+        <i class="bi bi-info-circle me-1"></i>
+        These settings control how the PDF looks when a submission is downloaded. They do not affect how the form appears to applicants.
+        Use <strong>Sample PDF</strong> from the Forms list to preview the output with your current style.
+    </div>
 </div>
 
 <!-- Field edit modal -->
@@ -320,22 +364,30 @@
 
     // ── Tab ───────────────────────────────────────────────────────────────
     window.fbSwitchTab = function (tab) {
-        const toVisual = tab === 'visual';
-        if (toVisual) {
+        const wasJson = document.getElementById('fb-pane-json').style.display !== 'none';
+
+        if (wasJson) {
+            // Parse JSON back into schema before leaving JSON tab
             const ta = document.getElementById(TA_ID);
             try {
                 const p = JSON.parse(ta.value.trim());
                 if (p && Array.isArray(p.pages)) schema = p;
                 else if (ta.value.trim()) { alert('Invalid JSON — fix before switching.'); return; }
             } catch (e) { alert('Invalid JSON:\n' + e.message); return; }
-            renderVisual();
         } else {
             saveToTA();
         }
-        document.getElementById('fb-pane-visual').style.display = toVisual ? '' : 'none';
-        document.getElementById('fb-pane-json').style.display   = toVisual ? 'none' : '';
-        document.getElementById('fb-tab-visual').classList.toggle('active', toVisual);
-        document.getElementById('fb-tab-json').classList.toggle('active', !toVisual);
+
+        document.getElementById('fb-pane-visual').style.display = tab === 'visual' ? '' : 'none';
+        document.getElementById('fb-pane-pdf').style.display    = tab === 'pdf'    ? '' : 'none';
+        document.getElementById('fb-pane-json').style.display   = tab === 'json'   ? '' : 'none';
+        ['visual','pdf','json'].forEach(t => {
+            document.getElementById(`fb-tab-${t}`).classList.toggle('active', t === tab);
+        });
+
+        if (tab === 'visual') renderVisual();
+        if (tab === 'pdf')    loadPdfStyleUI();
+        if (tab === 'json')   saveToTA();
     };
 
     // ── Render ─────────────────────────────────────────────────────────────
@@ -655,6 +707,23 @@
         ta.value = ta.value.substring(0, start) + insert + ta.value.substring(end);
         ta.setSelectionRange(start + insert.length, start + insert.length);
         ta.focus();
+    };
+
+    // ── PDF Style tab ─────────────────────────────────────────────────────
+    function loadPdfStyleUI() {
+        const s = schema.pdfStyle || {};
+        document.getElementById('fb-pdf-color').value      = s.accentColor || '#285190';
+        document.getElementById('fb-pdf-fieldstyle').value = s.fieldStyle  || 'underline';
+        document.getElementById('fb-pdf-fontsize').value   = String(s.fontSize || 9);
+        document.getElementById('fb-pdf-compact').checked  = !!s.compact;
+    }
+    window.fbUpdatePdfStyle = function () {
+        if (!schema.pdfStyle) schema.pdfStyle = {};
+        schema.pdfStyle.accentColor = document.getElementById('fb-pdf-color').value;
+        schema.pdfStyle.fieldStyle  = document.getElementById('fb-pdf-fieldstyle').value;
+        schema.pdfStyle.fontSize    = parseInt(document.getElementById('fb-pdf-fontsize').value) || 9;
+        schema.pdfStyle.compact     = document.getElementById('fb-pdf-compact').checked;
+        saveToTA();
     };
 
     // ── Preview ────────────────────────────────────────────────────────────
