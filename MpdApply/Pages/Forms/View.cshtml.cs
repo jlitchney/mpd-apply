@@ -15,6 +15,8 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
     public int CurrentPage { get; private set; } = 1;
     public int TotalPages { get; private set; }
     public Dictionary<string, string> SessionValues { get; private set; } = [];
+    public string? LogoBase64 { get; private set; }
+    public string? AgencyName { get; private set; }
 
     private string SessionKey => $"form_{Template.Slug}";
 
@@ -29,6 +31,7 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
         CurrentPage = Math.Clamp(step ?? 1, 1, TotalPages);
         PageDef = Template.Schema.Pages[CurrentPage - 1];
         SessionValues = LoadSession();
+        await LoadBrandingAsync();
         return Page();
     }
 
@@ -81,6 +84,7 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
         {
             TempData["Error"] = $"Please complete all required fields: {string.Join(", ", errors)}.";
             SessionValues = MergeSession(pageValues);
+            await LoadBrandingAsync();
             return Page();
         }
 
@@ -89,6 +93,7 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
         {
             TempData["Error"] = "Please read and check the electronic signature consent box before submitting.";
             SessionValues = MergeSession(pageValues);
+            await LoadBrandingAsync();
             return Page();
         }
 
@@ -169,5 +174,11 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
     private void SaveSession(Dictionary<string, string> values)
     {
         HttpContext.Session.SetString(SessionKey, JsonSerializer.Serialize(values));
+    }
+
+    private async Task LoadBrandingAsync()
+    {
+        LogoBase64 = (await db.Settings.FindAsync("LogoBase64"))?.Value;
+        AgencyName = (await db.Settings.FindAsync("AgencyName"))?.Value;
     }
 }

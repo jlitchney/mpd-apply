@@ -1,6 +1,26 @@
 @page "/Forms/{slug}/{step:int?}"
 @model MpdApply.Pages.Forms.ViewModel
-@{ ViewData["Title"] = Model.Template.Name; }
+@{
+    ViewData["Title"] = Model.Template.Name;
+    var accent = Model.Template.Schema.PdfStyle?.AccentColor ?? "#285190";
+}
+
+@if (Model.LogoBase64 != null || Model.AgencyName != null)
+{
+    <div class="mb-4 pb-3 d-flex align-items-center gap-3" style="border-bottom:3px solid @accent">
+        @if (Model.LogoBase64 != null)
+        {
+            <img src="@Model.LogoBase64" style="max-height:64px;max-width:140px;object-fit:contain;flex-shrink:0" />
+        }
+        <div>
+            @if (Model.AgencyName != null)
+            {
+                <div class="fw-bold fs-5" style="color:@accent;line-height:1.2">@Model.AgencyName</div>
+            }
+            <div class="text-muted small">@Model.Template.Name</div>
+        </div>
+    </div>
+}
 
 @if (Model.TotalPages > 1)
 {
