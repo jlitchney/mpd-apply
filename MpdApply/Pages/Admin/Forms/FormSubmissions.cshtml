@@ -135,6 +135,13 @@ else
                                             onclick="openStatus('@s.Id','@(s.ApplicantName ?? "—")','@s.Status','@Html.Raw(s.Notes?.Replace("'","\'") ?? "")')">
                                         <i class="bi bi-pencil"></i>
                                     </button>
+                                    <form method="post" asp-page-handler="DeleteSubmission"
+                                          asp-route-id="@Model.Template.Id" asp-route-sid="@s.Id"
+                                          onsubmit="return confirm('Delete this submission? This cannot be undone.')">
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

@@ -128,6 +128,15 @@ public class FormSubmissionsModel(AppDbContext db, ILogger<FormSubmissionsModel>
         return RedirectToPage(new { id });
     }
 
+    public async Task<IActionResult> OnPostDeleteSubmissionAsync(Guid id, Guid sid)
+    {
+        var auth = LoginModel.RequireAuth(this);
+        if (auth != null) return auth;
+        var s = await db.FormSubmissions.FindAsync(sid);
+        if (s != null) { db.FormSubmissions.Remove(s); await db.SaveChangesAsync(); }
+        return RedirectToPage(new { id });
+    }
+
     static string CsvEsc(string? v)
     {
         if (string.IsNullOrEmpty(v)) return "";

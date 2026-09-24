@@ -26,7 +26,7 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
         var template = await db.FormTemplates.FindAsync(
             db.FormTemplates.Where(t => t.Slug == slug).Select(t => t.Id).FirstOrDefault());
 
-        if (template == null || !template.IsPublished) return NotFound();
+        if (template == null || !template.IsPublished) return RedirectToPage("/Forms/Unavailable");
         Template = template;
         TotalPages = Template.Schema.Pages.Count;
         CurrentPage = Math.Clamp(step ?? 1, 1, TotalPages);
@@ -40,7 +40,7 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
     {
         var template = db.FormTemplates
             .FirstOrDefault(t => t.Slug == slug);
-        if (template == null || !template.IsPublished) return NotFound();
+        if (template == null || !template.IsPublished) return RedirectToPage("/Forms/Unavailable");
         Template = template;
         TotalPages = Template.Schema.Pages.Count;
         CurrentPage = Math.Clamp(step ?? 1, 1, TotalPages);
