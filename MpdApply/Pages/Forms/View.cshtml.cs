@@ -17,6 +17,7 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
     public Dictionary<string, string> SessionValues { get; private set; } = [];
     public string? LogoBase64 { get; private set; }
     public string? AgencyName { get; private set; }
+    public bool IsAdminPreview => HttpContext.Session.GetString("AdminAuth") == "true";
 
     private string SessionKey => $"form_{Template.Slug}";
 
@@ -80,21 +81,23 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
             if (string.IsNullOrWhiteSpace(val) || val == "data:,")
                 errors.Add(field.Label ?? field.Key);
         }
-        if (errors.Any())
+        if (!IsAdminPreview)
         {
-            TempData["Error"] = $"Please complete all required fields: {string.Join(", ", errors)}.";
-            SessionValues = MergeSession(pageValues);
-            await LoadBrandingAsync();
-            return Page();
-        }
+            if (errors.Any())
+            {
+                TempData["Error"] = $"Please complete all required fields: {string.Join(", ", errors)}.";
+                SessionValues = MergeSession(pageValues);
+                await LoadBrandingAsync();
+                return Page();
+            }
 
-        // Consent validation on final page
-        if (CurrentPage == TotalPages && Request.Form["EsignConsent"].FirstOrDefault() != "true")
-        {
-            TempData["Error"] = "Please read and check the electronic signature consent box before submitting.";
-            SessionValues = MergeSession(pageValues);
-            await LoadBrandingAsync();
-            return Page();
+            if (CurrentPage == TotalPages && Request.Form["EsignConsent"].FirstOrDefault() != "true")
+            {
+                TempData["Error"] = "Please read and check the electronic signature consent box before submitting.";
+                SessionValues = MergeSession(pageValues);
+                await LoadBrandingAsync();
+                return Page();
+            }
         }
 
         // Save to session

@@ -5,6 +5,13 @@
     var accent = Model.Template.Schema.PdfStyle?.AccentColor ?? "#285190";
 }
 
+@if (Model.IsAdminPreview)
+{
+    <div class="alert alert-warning py-2 small mb-3">
+        <i class="bi bi-eye me-1"></i><strong>Admin Preview</strong> — required fields are not enforced
+    </div>
+}
+
 @if (Model.LogoBase64 != null || Model.AgencyName != null)
 {
     <div class="mb-4 pb-3 d-flex align-items-center gap-3" style="border-bottom:3px solid @accent">
