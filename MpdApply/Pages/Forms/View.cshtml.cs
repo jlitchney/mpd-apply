@@ -92,7 +92,10 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
             SubmittedAt = DateTime.UtcNow,
             IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
             ValuesJson = JsonSerializer.Serialize(merged),
-            ApplicantName = merged.GetValueOrDefault("name") ?? merged.GetValueOrDefault("full_name"),
+            ApplicantName = merged.GetValueOrDefault("name")
+                ?? merged.GetValueOrDefault("full_name")
+                ?? (merged.TryGetValue("first_name", out var fn) && merged.TryGetValue("last_name", out var ln)
+                    ? $"{fn} {ln}".Trim() : null),
             ApplicantEmail = merged.GetValueOrDefault("email")
         };
 

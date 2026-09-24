@@ -55,6 +55,8 @@ else
                                 <div class="d-flex gap-1">
                                     <a asp-page="/Admin/Forms/FormSubmissions" asp-route-id="@t.Template.Id"
                                        class="btn btn-sm btn-outline-primary">Submissions</a>
+                                    <a href="/Admin/Forms?handler=SamplePdf&id=@t.Template.Id" target="_blank"
+                                       class="btn btn-sm btn-outline-info">Sample PDF</a>
                                     <a asp-page="/Admin/Forms/Edit" asp-route-id="@t.Template.Id"
                                        class="btn btn-sm btn-outline-secondary">Edit</a>
                                     <form method="post" asp-page-handler="Toggle" asp-route-id="@t.Template.Id">
