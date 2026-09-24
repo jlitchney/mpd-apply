@@ -14,6 +14,11 @@
             <i class="bi bi-code-slash me-1"></i>JSON
         </button>
     </li>
+    <li class="nav-item ms-auto d-flex align-items-center pe-1">
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fbOpenPreview()" style="font-size:.8rem">
+            <i class="bi bi-eye me-1"></i>Preview
+        </button>
+    </li>
 </ul>
 
 <div id="fb-pane-visual" class="border border-top-0 rounded-bottom p-3" style="background:#f8f9fa">
@@ -120,6 +125,23 @@
                     <i class="bi bi-check-lg me-1"></i>Save Field
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form Preview Modal -->
+<div class="modal fade" id="fbPreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#285190;color:#fff;padding:.6rem 1rem">
+                <div class="d-flex align-items-center gap-3 flex-grow-1">
+                    <h6 class="modal-title mb-0"><i class="bi bi-eye me-1"></i>Form Preview</h6>
+                    <div id="fb-prev-steps" class="d-flex gap-1 flex-wrap"></div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="fb-prev-body" style="background:#fafbfc"></div>
+            <div class="modal-footer py-2" id="fb-prev-footer"></div>
         </div>
     </div>
 </div>
@@ -597,5 +619,125 @@
     function esc(s)  { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
     function escH(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     function escA(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
+    // ── Preview ────────────────────────────────────────────────────────────
+    let prevSchema = null, prevPage = 0;
+
+    window.fbOpenPreview = function () {
+        // Sync visual state to textarea first
+        if (document.getElementById('fb-pane-visual').style.display !== 'none') saveToTA();
+        const ta = document.getElementById(TA_ID);
+        try { prevSchema = JSON.parse(ta.value.trim()); }
+        catch (e) { alert('Cannot preview: invalid JSON\n' + e.message); return; }
+        prevPage = 0;
+        renderPreview();
+        new bootstrap.Modal(document.getElementById('fbPreviewModal')).show();
+    };
+
+    function renderPreview() {
+        const pages = prevSchema.pages || [];
+        const page  = pages[prevPage] || { title: '', fields: [] };
+
+        // Step pills
+        const stepsEl = document.getElementById('fb-prev-steps');
+        stepsEl.innerHTML = pages.length > 1 ? pages.map((p, i) =>
+            `<span style="font-size:.72rem;padding:2px 8px;border-radius:10px;cursor:pointer;` +
+            `background:${i===prevPage?'rgba(255,255,255,.9)':'rgba(255,255,255,.2)'};` +
+            `color:${i===prevPage?'#285190':'rgba(255,255,255,.85)'};font-weight:${i===prevPage?'700':'400'}" ` +
+            `onclick="window._fbPrevGo(${i})">${i+1}. ${escH(p.title||'Page '+(i+1))}</span>`
+        ).join('') : '';
+
+        // Body
+        let html = '';
+        if (page.intro) {
+            html += `<div class="alert mb-4" style="background:#e8efff;border-left:4px solid #285190;font-size:.85rem">${escH(page.intro)}</div>`;
+        }
+        html += '<div class="row g-3">';
+        for (const f of (page.fields || [])) html += prevField(f);
+        html += '</div>';
+        document.getElementById('fb-prev-body').innerHTML = html;
+
+        // Footer nav
+        const footer = document.getElementById('fb-prev-footer');
+        footer.innerHTML =
+            `<div class="d-flex justify-content-between w-100">` +
+            `<button class="btn btn-outline-secondary btn-sm" ${prevPage===0?'disabled':''} onclick="window._fbPrevGo(${prevPage-1})"><i class="bi bi-arrow-left me-1"></i>Back</button>` +
+            `<span class="text-muted small align-self-center">${pages.length>1?`Page ${prevPage+1} of ${pages.length}`:''}</span>` +
+            (prevPage < pages.length - 1
+                ? `<button class="btn btn-mpd btn-sm" onclick="window._fbPrevGo(${prevPage+1})">Next <i class="bi bi-arrow-right ms-1"></i></button>`
+                : `<button class="btn btn-success btn-sm" disabled><i class="bi bi-send me-1"></i>Submit</button>`) +
+            `</div>`;
+    }
+
+    window._fbPrevGo = function (i) { prevPage = i; renderPreview(); };
+
+    function prevField(f) {
+        const wc  = ({half:'col-md-6',third:'col-md-4',quarter:'col-md-3'})[f.width] || 'col-12';
+        const lbl = escH(f.label || '');
+        const req = f.required ? '<span class="text-danger ms-1">*</span>' : '';
+        const ht  = f.helpText ? `<div class="form-text">${escH(f.helpText)}</div>` : '';
+
+        switch (f.type) {
+            case 'section_header':
+                return `<div class="col-12"><div style="border-top:2px solid #285190;margin:.5rem 0 .25rem;padding-top:.4rem;font-weight:600;color:#285190;font-size:.95rem">${lbl}</div></div>`;
+
+            case 'paragraph':
+                return `<div class="col-12"><div class="p-3 rounded" style="background:#f8f9fa;font-size:.82rem;line-height:1.7;color:#444;white-space:pre-line">${escH(f.content||'')}</div></div>`;
+
+            case 'initials_panel':
+                return `<div class="col-12"><div class="p-2 rounded" style="background:#e8efff;border:1px solid #c6d4f3;font-size:.82rem;color:#285190"><i class="bi bi-keyboard me-1"></i>Initials setup — applicant types or draws their initials here</div></div>`;
+
+            case 'initials_reminder':
+                return `<div class="col-12"><div class="p-2 rounded" style="background:#fff8e1;border:1px solid #ffe082;font-size:.82rem;color:#6d5700"><i class="bi bi-bell me-1"></i>Initials reminder</div></div>`;
+
+            case 'initials':
+                return `<div class="col-12"><div class="d-flex gap-3 align-items-start py-1" style="border-bottom:1px solid #f0f0f0">` +
+                    `<div style="border:1.5px solid #ced4da;border-radius:4px;width:64px;min-height:44px;background:#f8f9fa;flex-shrink:0"></div>` +
+                    `<div style="font-size:.85rem;line-height:1.5">${lbl}${req}</div></div></div>`;
+
+            case 'textarea':
+                return `<div class="${wc}"><label class="form-label">${lbl}${req}</label>` +
+                    `<textarea class="form-control" rows="${f.rows||3}" placeholder="${escA(f.placeholder||'')}"></textarea>${ht}</div>`;
+
+            case 'select':
+                return `<div class="${wc}"><label class="form-label">${lbl}${req}</label>` +
+                    `<select class="form-select"><option>-- Select --</option>` +
+                    (f.options||[]).map(o=>`<option>${escH(o)}</option>`).join('') +
+                    `</select>${ht}</div>`;
+
+            case 'radio': {
+                const opts = (f.options||[]).map(o =>
+                    `<div class="form-check"><input type="radio" class="form-check-input" name="prev_${escA(f.key||'')}">` +
+                    `<label class="form-check-label">${escH(o)}</label></div>`).join('');
+                return `<div class="${wc}"><label class="form-label">${lbl}${req}</label>` +
+                    `<div class="d-flex flex-wrap gap-3 mt-1">${opts}</div>${ht}</div>`;
+            }
+
+            case 'yesno':
+                return `<div class="${wc}"><label class="form-label">${lbl}${req}</label>` +
+                    `<div class="d-flex gap-3 mt-1">` +
+                    `<div class="form-check"><input type="radio" class="form-check-input" name="prev_${escA(f.key||'')}"><label class="form-check-label">Yes</label></div>` +
+                    `<div class="form-check"><input type="radio" class="form-check-input" name="prev_${escA(f.key||'')}"><label class="form-check-label">No</label></div>` +
+                    `</div>${ht}</div>`;
+
+            case 'checkbox':
+                return `<div class="${wc}"><div class="form-check mt-2">` +
+                    `<input type="checkbox" class="form-check-input">` +
+                    `<label class="form-check-label">${lbl}${req}</label></div></div>`;
+
+            case 'signature':
+                return `<div class="${wc}"><label class="form-label fw-bold">${lbl}${req}</label>` +
+                    `<div style="border:1px solid #ced4da;border-radius:4px;height:120px;background:#fff;display:flex;align-items:center;justify-content:center;color:#adb5bd;cursor:crosshair">` +
+                    `<i class="bi bi-pen me-1"></i>Sign here</div>` +
+                    `<button type="button" class="btn btn-sm btn-outline-secondary mt-1">Clear</button></div>`;
+
+            default: {
+                const t = ['text','email','tel','date','number'].includes(f.type) ? f.type : 'text';
+                return `<div class="${wc}"><label class="form-label">${lbl}${req}</label>` +
+                    `<input type="${t}" class="form-control" placeholder="${escA(f.placeholder||'')}">` +
+                    `${ht}</div>`;
+            }
+        }
+    }
 })();
 </script>

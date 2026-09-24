@@ -1,7 +1,8 @@
 @{
     var path = Context.Request.Path.Value?.ToLower() ?? "";
-    var onForms = path.StartsWith("/admin/forms") || path.StartsWith("/admin/submissions");
-    var onSettings = path.StartsWith("/settings");
+    var onForms       = path.StartsWith("/admin/forms");
+    var onSubmissions = path.StartsWith("/admin/submissions");
+    var onSettings    = path.StartsWith("/settings");
 }
 <nav style="background:#1e3d6e;border-bottom:2px solid #142a4a">
     <div class="container">
@@ -9,11 +10,14 @@
             <a href="/Admin/Forms" class="admin-nav-link @(onForms ? "active" : "")">
                 <i class="bi bi-file-earmark-text me-1"></i>Forms
             </a>
+            <a href="/Admin/Submissions" class="admin-nav-link @(onSubmissions ? "active" : "")">
+                <i class="bi bi-inbox me-1"></i>Submissions
+            </a>
             <a href="/Settings/Index" class="admin-nav-link @(onSettings ? "active" : "")">
                 <i class="bi bi-gear me-1"></i>Settings
             </a>
             <a href="/Admin/Logout" class="admin-nav-link ms-auto">
-                <i class="bi bi-box-arrow-right me-1"></i>Sign Out
+                <i class="bi bi-box-arrow-right me-1"></i>Logout
             </a>
         </div>
     </div>
@@ -29,6 +33,6 @@
     align-items: center;
     transition: background .12s, color .12s;
 }
-.admin-nav-link:hover { color: #fff; background: rgba(255,255,255,.12); }
+.admin-nav-link:hover  { color: #fff; background: rgba(255,255,255,.12); }
 .admin-nav-link.active { color: #fff; background: rgba(255,255,255,.18); font-weight: 600; }
 </style>
