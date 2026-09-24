@@ -6,8 +6,11 @@
     <h4 class="mb-0">Edit: @Model.Template.Name</h4>
     <div class="d-flex gap-2">
         <a href="/Forms/@Model.Template.Slug" target="_blank" class="btn btn-sm btn-outline-primary">
-            <i class="bi bi-box-arrow-up-right me-1"></i>Preview
+            <i class="bi bi-box-arrow-up-right me-1"></i>Preview Form
         </a>
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="fbPreviewPdf()">
+            <i class="bi bi-file-earmark-pdf me-1"></i>Preview PDF
+        </button>
         <a asp-page="/Admin/Forms/Index" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Back
         </a>
