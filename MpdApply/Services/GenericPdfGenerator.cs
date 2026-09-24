@@ -56,13 +56,15 @@ public static class GenericPdfGenerator
                 {
                     h.Item().Row(r =>
                     {
+                        r.RelativeItem();
                         if (logoBytes != null)
                             r.ConstantItem(60).PaddingRight(10).AlignMiddle().Image(logoBytes).FitArea();
-                        r.RelativeItem().Column(c =>
+                        r.AutoItem().AlignMiddle().Column(c =>
                         {
-                            c.Item().AlignCenter().Text(agencyName).FontSize(fs + 4).Bold();
-                            c.Item().AlignCenter().Text(template.Name).FontSize(fs + 2).Bold();
+                            c.Item().Text(agencyName).FontSize(fs + 4).Bold();
+                            c.Item().Text(template.Name).FontSize(fs + 2).Bold();
                         });
+                        r.RelativeItem();
                     });
                     h.Item().PaddingTop(4).LineHorizontal(1.5f).LineColor(accent);
                 });
