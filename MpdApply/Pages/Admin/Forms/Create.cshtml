@@ -81,7 +81,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Form Schema</label>
-                        <partial name="_VisualFormBuilder" model='@((Model.Input.SchemaJson ?? "", "Input.SchemaJson"))' />
+                        <partial name="_VisualFormBuilder" model='@((Model.Input.SchemaJson ?? "", "Input.SchemaJson", ""))' />
                     </div>
 
                     <button type="submit" class="btn btn-success">

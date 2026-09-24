@@ -1,4 +1,4 @@
-@model (string Json, string InputName)
+@model (string Json, string InputName, string PdfPreviewUrl)
 @{ var inputId = Model.InputName.Replace(".", "_"); }
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
@@ -77,10 +77,17 @@
             </div>
         </div>
     </div>
-    <div class="mt-3 p-2 rounded" style="background:#e8f0fe;border:1px solid #c6d4f3;font-size:.78rem;color:#285190">
-        <i class="bi bi-info-circle me-1"></i>
-        These settings control how the PDF looks when a submission is downloaded. They do not affect how the form appears to applicants.
-        Use <strong>Sample PDF</strong> from the Forms list to preview the output with your current style.
+    <div class="mt-3 d-flex align-items-start gap-3">
+        <div class="flex-grow-1 p-2 rounded" style="background:#e8f0fe;border:1px solid #c6d4f3;font-size:.78rem;color:#285190">
+            <i class="bi bi-info-circle me-1"></i>
+            These settings control how the PDF looks when a submission is downloaded. They do not affect how the form appears to applicants.
+        </div>
+        @if (!string.IsNullOrEmpty(Model.PdfPreviewUrl))
+        {
+            <button type="button" class="btn btn-sm btn-outline-danger flex-shrink-0" onclick="fbPreviewPdf()">
+                <i class="bi bi-file-earmark-pdf me-1"></i>Preview PDF
+            </button>
+        }
     </div>
 </div>
 
@@ -314,6 +321,7 @@
 <script>
 (function () {
     const TA_ID = '@inputId';
+    const PDF_PREVIEW_URL = '@Model.PdfPreviewUrl';
     let schema = { pages: [] };
     let editPage = -1, editField = -1, autoKeyLocked = false;
     const sortables = {};
@@ -732,6 +740,39 @@
         schema.pdfStyle.compact     = document.getElementById('fb-pdf-compact').checked;
         schema.pdfStyle.showMeta    = document.getElementById('fb-pdf-showmeta').checked;
         saveToTA();
+    };
+
+    window.fbPreviewPdf = function () {
+        if (!PDF_PREVIEW_URL) return;
+        if (document.getElementById('fb-pane-visual').style.display !== 'none') saveToTA();
+        if (document.getElementById('fb-pane-pdf').style.display !== 'none') fbUpdatePdfStyle();
+
+        const f = document.createElement('form');
+        f.method = 'post';
+        f.action = PDF_PREVIEW_URL;
+        f.target = '_blank';
+
+        const token = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (token) {
+            const t = document.createElement('input');
+            t.type = 'hidden'; t.name = '__RequestVerificationToken'; t.value = token.value;
+            f.appendChild(t);
+        }
+        const s = document.createElement('input');
+        s.type = 'hidden'; s.name = 'PreviewSchemaJson';
+        s.value = document.getElementById(TA_ID).value;
+        f.appendChild(s);
+
+        const nameEl = document.querySelector('input[name="Input.Name"]');
+        if (nameEl) {
+            const n = document.createElement('input');
+            n.type = 'hidden'; n.name = 'PreviewName'; n.value = nameEl.value;
+            f.appendChild(n);
+        }
+
+        document.body.appendChild(f);
+        f.submit();
+        setTimeout(() => f.remove(), 100);
     };
 
     // ── Preview ────────────────────────────────────────────────────────────
