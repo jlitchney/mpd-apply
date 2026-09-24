@@ -33,7 +33,7 @@ public class LoginModel : PageModel
         }
 
         HttpContext.Session.SetString("AdminAuth", "true");
-        return RedirectToPage("/Admin/Submissions");
+        return RedirectToPage("/Admin/Forms/Index");
     }
 
     public static IActionResult? RequireAuth(PageModel page)
