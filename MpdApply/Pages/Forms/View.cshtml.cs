@@ -17,7 +17,7 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
 
     private string SessionKey => $"form_{Template.Slug}";
 
-    public async Task<IActionResult> OnGetAsync(string slug, int? page)
+    public async Task<IActionResult> OnGetAsync(string slug, int? step)
     {
         var template = await db.FormTemplates.FindAsync(
             db.FormTemplates.Where(t => t.Slug == slug).Select(t => t.Id).FirstOrDefault());
@@ -25,20 +25,20 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
         if (template == null || !template.IsPublished) return NotFound();
         Template = template;
         TotalPages = Template.Schema.Pages.Count;
-        CurrentPage = Math.Clamp(page ?? 1, 1, TotalPages);
+        CurrentPage = Math.Clamp(step ?? 1, 1, TotalPages);
         PageDef = Template.Schema.Pages[CurrentPage - 1];
         SessionValues = LoadSession();
         return Page();
     }
 
-    public async Task<IActionResult> OnPostAsync(string slug, int? page)
+    public async Task<IActionResult> OnPostAsync(string slug, int? step)
     {
         var template = db.FormTemplates
             .FirstOrDefault(t => t.Slug == slug);
         if (template == null || !template.IsPublished) return NotFound();
         Template = template;
         TotalPages = Template.Schema.Pages.Count;
-        CurrentPage = Math.Clamp(page ?? 1, 1, TotalPages);
+        CurrentPage = Math.Clamp(step ?? 1, 1, TotalPages);
         PageDef = Template.Schema.Pages[CurrentPage - 1];
 
         // Collect this page's values
