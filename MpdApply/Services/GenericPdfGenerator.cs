@@ -105,9 +105,10 @@ public static class GenericPdfGenerator
                         }
                     }
 
-                    col.Item().PaddingTop(14).BorderTop(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingTop(3)
-                        .Text($"Submitted: {submission.SubmittedAt?.ToLocalTime():MM/dd/yyyy h:mm tt}   IP: {submission.IpAddress}")
-                        .FontSize(7).FontColor(Colors.Grey.Darken1);
+                    if (style.ShowMeta)
+                        col.Item().PaddingTop(14).BorderTop(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingTop(3)
+                            .Text($"Submitted: {submission.SubmittedAt?.ToLocalTime():MM/dd/yyyy h:mm tt}   IP: {submission.IpAddress}")
+                            .FontSize(7).FontColor(Colors.Grey.Darken1);
                 });
 
                 // ── Footer ─────────────────────────────────────────────────────
@@ -262,12 +263,16 @@ public static class GenericPdfGenerator
                 return;
             }
 
-            // Label header
-            c.Item().Text(f.Label ?? f.Key).FontSize(labelFs).Bold().FontColor(Colors.Grey.Darken2);
+            // Label header (shaded style draws its own label inside each case)
+            if (style.FieldStyle != "shaded")
+                c.Item().Text(f.Label ?? f.Key).FontSize(labelFs).Bold().FontColor(Colors.Grey.Darken2);
 
             switch (f.Type)
             {
                 case "yesno":
+                    if (style.FieldStyle == "shaded")
+                        c.Item().Background(Colors.Grey.Lighten4).Padding(2)
+                            .Text(f.Label ?? f.Key).FontSize(labelFs).Bold().FontColor(Colors.Grey.Darken2);
                     c.Item().PaddingTop(2).Row(r =>
                     {
                         r.AutoItem().PaddingRight(16)
@@ -279,6 +284,9 @@ public static class GenericPdfGenerator
                     break;
 
                 case "radio":
+                    if (style.FieldStyle == "shaded")
+                        c.Item().Background(Colors.Grey.Lighten4).Padding(2)
+                            .Text(f.Label ?? f.Key).FontSize(labelFs).Bold().FontColor(Colors.Grey.Darken2);
                     c.Item().PaddingTop(2).Column(rc =>
                     {
                         foreach (var opt in f.Options)
@@ -288,7 +296,14 @@ public static class GenericPdfGenerator
                     break;
 
                 case "textarea":
-                    if (box)
+                    if (style.FieldStyle == "shaded")
+                    {
+                        c.Item().Background(Colors.Grey.Lighten4).Padding(2)
+                            .Text(f.Label ?? f.Key).FontSize(labelFs).Bold().FontColor(Colors.Grey.Darken2);
+                        c.Item().MinHeight(40).Border(0.5f).BorderColor(Colors.Grey.Medium)
+                            .Padding(3).Text(val).FontSize(fs);
+                    }
+                    else if (box)
                         c.Item().MinHeight(40).Border(0.5f).BorderColor(Colors.Grey.Medium)
                             .Padding(3).Text(val).FontSize(fs);
                     else
@@ -297,7 +312,14 @@ public static class GenericPdfGenerator
                     break;
 
                 default:
-                    if (box)
+                    if (style.FieldStyle == "shaded")
+                    {
+                        c.Item().Background(Colors.Grey.Lighten4).Padding(2)
+                            .Text(f.Label ?? f.Key).FontSize(labelFs).Bold().FontColor(Colors.Grey.Darken2);
+                        c.Item().Border(0.5f).BorderColor(Colors.Grey.Medium)
+                            .Padding(3).Text(val).FontSize(fs);
+                    }
+                    else if (box)
                         c.Item().Border(0.5f).BorderColor(Colors.Grey.Medium)
                             .Padding(3).Text(val).FontSize(fs);
                     else

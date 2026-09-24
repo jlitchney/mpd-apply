@@ -52,6 +52,7 @@
             <select id="fb-pdf-fieldstyle" class="form-select form-select-sm" onchange="fbUpdatePdfStyle()">
                 <option value="underline">Underline (classic form)</option>
                 <option value="box">Box (bordered cells)</option>
+                <option value="shaded">Shaded label (official look)</option>
             </select>
             <div class="form-text" style="font-size:.71rem">How field values appear in the PDF</div>
         </div>
@@ -63,11 +64,16 @@
                 <option value="10">Large (10pt)</option>
             </select>
         </div>
-        <div class="col-md-3 d-flex align-items-end pb-2">
-            <div class="form-check">
+        <div class="col-md-3">
+            <div class="form-check mt-4">
                 <input type="checkbox" id="fb-pdf-compact" class="form-check-input" onchange="fbUpdatePdfStyle()" />
                 <label class="form-check-label small" for="fb-pdf-compact">Compact spacing</label>
                 <div class="form-text" style="font-size:.71rem">Tighter gaps between fields</div>
+            </div>
+            <div class="form-check mt-2">
+                <input type="checkbox" id="fb-pdf-showmeta" class="form-check-input" onchange="fbUpdatePdfStyle()" checked />
+                <label class="form-check-label small" for="fb-pdf-showmeta">Show submission info</label>
+                <div class="form-text" style="font-size:.71rem">Date &amp; IP at bottom of PDF</div>
             </div>
         </div>
     </div>
@@ -712,10 +718,11 @@
     // ── PDF Style tab ─────────────────────────────────────────────────────
     function loadPdfStyleUI() {
         const s = schema.pdfStyle || {};
-        document.getElementById('fb-pdf-color').value      = s.accentColor || '#285190';
-        document.getElementById('fb-pdf-fieldstyle').value = s.fieldStyle  || 'underline';
-        document.getElementById('fb-pdf-fontsize').value   = String(s.fontSize || 9);
-        document.getElementById('fb-pdf-compact').checked  = !!s.compact;
+        document.getElementById('fb-pdf-color').value        = s.accentColor || '#285190';
+        document.getElementById('fb-pdf-fieldstyle').value   = s.fieldStyle  || 'underline';
+        document.getElementById('fb-pdf-fontsize').value     = String(s.fontSize || 9);
+        document.getElementById('fb-pdf-compact').checked    = !!s.compact;
+        document.getElementById('fb-pdf-showmeta').checked   = s.showMeta !== false; // default true
     }
     window.fbUpdatePdfStyle = function () {
         if (!schema.pdfStyle) schema.pdfStyle = {};
@@ -723,6 +730,7 @@
         schema.pdfStyle.fieldStyle  = document.getElementById('fb-pdf-fieldstyle').value;
         schema.pdfStyle.fontSize    = parseInt(document.getElementById('fb-pdf-fontsize').value) || 9;
         schema.pdfStyle.compact     = document.getElementById('fb-pdf-compact').checked;
+        schema.pdfStyle.showMeta    = document.getElementById('fb-pdf-showmeta').checked;
         saveToTA();
     };
 

@@ -31,9 +31,10 @@ public class FormPageDef
 public class PdfStyleDef
 {
     [JsonPropertyName("accentColor")] public string AccentColor { get; set; } = "#285190";
-    [JsonPropertyName("fieldStyle")]  public string FieldStyle  { get; set; } = "underline"; // "underline" | "box"
+    [JsonPropertyName("fieldStyle")]  public string FieldStyle  { get; set; } = "underline"; // "underline" | "box" | "shaded"
     [JsonPropertyName("fontSize")]    public int    FontSize    { get; set; } = 9;
     [JsonPropertyName("compact")]     public bool   Compact     { get; set; } = false;
+    [JsonPropertyName("showMeta")]    public bool   ShowMeta    { get; set; } = true;
 }
 
 public class FormSchemaDef
