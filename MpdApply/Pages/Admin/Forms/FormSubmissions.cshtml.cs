@@ -51,7 +51,7 @@ public class FormSubmissionsModel(AppDbContext db, ILogger<FormSubmissionsModel>
         }
     }
 
-    public async Task<IActionResult> OnGetViewAsync(Guid id, Guid sid)
+    public async Task<IActionResult> OnGetPreviewAsync(Guid id, Guid sid)
     {
         var auth = LoginModel.RequireAuth(this);
         if (auth != null) return auth;
@@ -60,19 +60,18 @@ public class FormSubmissionsModel(AppDbContext db, ILogger<FormSubmissionsModel>
         var submission = await db.FormSubmissions.FindAsync(sid);
         if (template == null || submission == null) return NotFound();
 
-        var values = submission.Values;
-        var lines = new System.Text.StringBuilder();
-        lines.AppendLine($"Form: {template.Name}");
-        lines.AppendLine($"Submitted: {submission.SubmittedAt?.ToLocalTime():M/d/yyyy h:mm tt}");
-        lines.AppendLine($"IP: {submission.IpAddress}");
-        lines.AppendLine("---");
-        foreach (var kv in values)
+        try
         {
-            if (kv.Key.StartsWith("InitialsImageData") || (kv.Value.Length > 200 && kv.Value.StartsWith("data:")))
-                lines.AppendLine($"{kv.Key}: [image data]");
-            else
-                lines.AppendLine($"{kv.Key}: {kv.Value}");
+            var logoSetting = await db.Settings.FindAsync("LogoBase64");
+            var agencySetting = await db.Settings.FindAsync("AgencyName");
+            var agency = agencySetting?.Value ?? "Town of Middletown Police Department";
+            var pdf = GenericPdfGenerator.Generate(template, submission, logoSetting?.Value, agency);
+            return File(pdf, "application/pdf");
         }
-        return Content(lines.ToString(), "text/plain");
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "PDF preview failed for submission {Id}", sid);
+            return Content($"PDF error: {ex.Message}", "text/plain");
+        }
     }
 }

@@ -16,6 +16,47 @@
 
 @if (TempData["Message"] != null) { <div class="alert alert-success">@TempData["Message"]</div> }
 
+<div class="modal fade" id="pdfPreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width:900px">
+        <div class="modal-content" style="height:85vh">
+            <div class="modal-header py-2">
+                <h6 class="modal-title mb-0" id="pdfPreviewTitle">Submission Preview</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0 position-relative" style="height:100%">
+                <div id="pdfPreviewLoading" class="position-absolute top-50 start-50 translate-middle text-center" style="z-index:10">
+                    <div class="spinner-border text-primary mb-2"></div>
+                    <div class="small text-muted">Generating PDF…</div>
+                </div>
+                <iframe id="pdfPreviewFrame" src="" style="width:100%;height:100%;border:none;opacity:0;transition:opacity .2s"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function openPreview(url, name) {
+    var frame = document.getElementById('pdfPreviewFrame');
+    var loading = document.getElementById('pdfPreviewLoading');
+    var title = document.getElementById('pdfPreviewTitle');
+    title.textContent = name;
+    frame.style.opacity = '0';
+    loading.style.display = 'block';
+    frame.onload = function() {
+        loading.style.display = 'none';
+        frame.style.opacity = '1';
+    };
+    frame.src = url;
+    var modal = new bootstrap.Modal(document.getElementById('pdfPreviewModal'));
+    modal.show();
+    document.getElementById('pdfPreviewModal').addEventListener('hidden.bs.modal', function() {
+        frame.src = '';
+    }, { once: true });
+}
+</script>
+}
+
 @if (!Model.Submissions.Any())
 {
     <div class="card shadow-sm"><div class="card-body text-center text-muted py-5">No submissions yet.</div></div>
@@ -31,6 +72,8 @@ else
                 <tbody>
                     @foreach (var s in Model.Submissions)
                     {
+                        var previewUrl = $"/Admin/Forms/FormSubmissions/{Model.Template.Id}?sid={s.Id}&handler=Preview";
+                        var downloadUrl = $"/Admin/Forms/FormSubmissions/{Model.Template.Id}?sid={s.Id}&handler=Download";
                         <tr>
                             <td class="fw-semibold">@(s.ApplicantName ?? "—")</td>
                             <td>@(s.ApplicantEmail ?? "—")</td>
@@ -38,18 +81,13 @@ else
                             <td class="text-muted small">@s.IpAddress</td>
                             <td>
                                 <div class="d-flex gap-1">
-                                    <a asp-page="/Admin/Forms/FormSubmissions"
-                                       asp-route-id="@Model.Template.Id"
-                                       asp-page-handler="Download"
-                                       asp-route-sid="@s.Id"
-                                       class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-download me-1"></i>PDF
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            onclick="openPreview('@previewUrl', '@(s.ApplicantName ?? "Submission")')">
+                                        <i class="bi bi-eye me-1"></i>View
+                                    </button>
+                                    <a href="@downloadUrl" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-download me-1"></i>Download
                                     </a>
-                                    <a asp-page="/Admin/Forms/FormSubmissions"
-                                       asp-route-id="@Model.Template.Id"
-                                       asp-page-handler="View"
-                                       asp-route-sid="@s.Id"
-                                       class="btn btn-sm btn-outline-secondary">View</a>
                                 </div>
                             </td>
                         </tr>
