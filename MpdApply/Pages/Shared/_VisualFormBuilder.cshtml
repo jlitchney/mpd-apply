@@ -192,6 +192,24 @@
     </div>
 </div>
 
+<!-- PDF Style Preview Modal -->
+<div class="modal fade" id="fbPdfPreviewModal" tabindex="-1">
+    <div class="modal-dialog" style="max-width:min(880px,96vw);margin:1rem auto">
+        <div class="modal-content" style="height:90vh">
+            <div class="modal-header py-2" style="flex-shrink:0">
+                <h6 class="modal-title mb-0">
+                    <i class="bi bi-file-earmark-pdf me-1 text-danger"></i>PDF Style Preview
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0" style="flex:1;min-height:0;position:relative;overflow:hidden">
+                <div id="fb-pdf-loading" style="position:absolute;inset:0;background:#f8f9fa;z-index:2;display:flex;align-items:center;justify-content:center"></div>
+                <iframe id="fb-pdf-frame" src="about:blank" style="width:100%;height:100%;border:none;display:block"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Form Preview Modal -->
 <div class="modal fade" id="fbPreviewModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
@@ -742,37 +760,40 @@
         saveToTA();
     };
 
-    window.fbPreviewPdf = function () {
+    let _pdfObjectUrl = null;
+
+    window.fbPreviewPdf = async function () {
         if (!PDF_PREVIEW_URL) return;
         if (document.getElementById('fb-pane-visual').style.display !== 'none') saveToTA();
         if (document.getElementById('fb-pane-pdf').style.display !== 'none') fbUpdatePdfStyle();
 
-        const f = document.createElement('form');
-        f.method = 'post';
-        f.action = PDF_PREVIEW_URL;
-        f.target = '_blank';
+        // Show modal with spinner
+        const loadingEl = document.getElementById('fb-pdf-loading');
+        loadingEl.innerHTML = '<div class="text-center text-muted"><div class="spinner-border d-block mx-auto mb-2" style="width:2rem;height:2rem"></div><small>Generating PDF…</small></div>';
+        loadingEl.style.display = 'flex';
+        document.getElementById('fb-pdf-frame').src = 'about:blank';
+        new bootstrap.Modal(document.getElementById('fbPdfPreviewModal')).show();
 
-        const token = document.querySelector('input[name="__RequestVerificationToken"]');
-        if (token) {
-            const t = document.createElement('input');
-            t.type = 'hidden'; t.name = '__RequestVerificationToken'; t.value = token.value;
-            f.appendChild(t);
-        }
-        const s = document.createElement('input');
-        s.type = 'hidden'; s.name = 'PreviewSchemaJson';
-        s.value = document.getElementById(TA_ID).value;
-        f.appendChild(s);
+        // Revoke previous object URL to free memory
+        if (_pdfObjectUrl) { URL.revokeObjectURL(_pdfObjectUrl); _pdfObjectUrl = null; }
 
+        const fd = new FormData();
+        const tok = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (tok) fd.append('__RequestVerificationToken', tok.value);
+        fd.append('PreviewSchemaJson', document.getElementById(TA_ID).value);
         const nameEl = document.querySelector('input[name="Input.Name"]');
-        if (nameEl) {
-            const n = document.createElement('input');
-            n.type = 'hidden'; n.name = 'PreviewName'; n.value = nameEl.value;
-            f.appendChild(n);
-        }
+        if (nameEl) fd.append('PreviewName', nameEl.value);
 
-        document.body.appendChild(f);
-        f.submit();
-        setTimeout(() => f.remove(), 100);
+        try {
+            const resp = await fetch(PDF_PREVIEW_URL, { method: 'POST', body: fd });
+            if (!resp.ok) throw new Error('Server returned ' + resp.status);
+            const blob = await resp.blob();
+            _pdfObjectUrl = URL.createObjectURL(blob);
+            document.getElementById('fb-pdf-frame').src = _pdfObjectUrl;
+            loadingEl.style.display = 'none';
+        } catch (e) {
+            loadingEl.innerHTML = '<div class="text-danger small p-4 text-center"><i class="bi bi-exclamation-triangle-fill d-block fs-3 mb-2"></i>Failed to generate PDF preview.<br><small class="text-muted">' + e.message + '</small></div>';
+        }
     };
 
     // ── Preview ────────────────────────────────────────────────────────────
