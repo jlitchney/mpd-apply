@@ -1,6 +1,6 @@
 @page "{id:guid}"
 @model MpdApply.Pages.Admin.Forms.FormSubmissionsModel
-@{ ViewData["Title"] = $"Submissions — {Model.Template.Name}"; }
+@{ ViewData["Title"] = $"Submissions — {Model.Template.Name}"; ViewData["IsAdmin"] = true; }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>

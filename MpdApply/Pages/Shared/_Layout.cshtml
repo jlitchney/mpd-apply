@@ -64,6 +64,11 @@
         </div>
     </div>
 
+    @if (ViewData["IsAdmin"] is true)
+    {
+        <partial name="_AdminNav" />
+    }
+
     @if (ViewData["Step"] != null)
     {
         var current = (int)ViewData["Step"]!;
