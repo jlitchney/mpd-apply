@@ -2,12 +2,29 @@
 @model MpdApply.Pages.Admin.Forms.FormSubmissionsModel
 @{ ViewData["Title"] = $"Submissions — {Model.Template.Name}"; ViewData["IsAdmin"] = true; }
 
+@{
+    string StatusBadge(string s) => s switch {
+        "Approved" => "bg-success",
+        "Rejected" => "bg-danger",
+        "Reviewed" => "bg-warning text-dark",
+        "Pending"  => "bg-secondary",
+        _          => "bg-primary"
+    };
+}
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
         <h4 class="mb-0">@Model.Template.Name — Submissions</h4>
         <div class="text-muted small">@Model.Submissions.Count submission(s)</div>
     </div>
     <div class="d-flex gap-2">
+        @if (Model.Submissions.Any())
+        {
+            <a href="/Admin/Forms/FormSubmissions/@Model.Template.Id?handler=Export"
+               class="btn btn-sm btn-outline-success">
+                <i class="bi bi-download me-1"></i>Export CSV
+            </a>
+        }
         <a asp-page="/Admin/Forms/Index" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>All Forms
         </a>
@@ -16,6 +33,7 @@
 
 @if (TempData["Message"] != null) { <div class="alert alert-success">@TempData["Message"]</div> }
 
+<!-- PDF Preview Modal -->
 <div class="modal fade" id="pdfPreviewModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width:900px">
         <div class="modal-content" style="height:85vh">
@@ -34,28 +52,45 @@
     </div>
 </div>
 
-@section Scripts {
-<script>
-function openPreview(url, name) {
-    var frame = document.getElementById('pdfPreviewFrame');
-    var loading = document.getElementById('pdfPreviewLoading');
-    var title = document.getElementById('pdfPreviewTitle');
-    title.textContent = name;
-    frame.style.opacity = '0';
-    loading.style.display = 'block';
-    frame.onload = function() {
-        loading.style.display = 'none';
-        frame.style.opacity = '1';
-    };
-    frame.src = url;
-    var modal = new bootstrap.Modal(document.getElementById('pdfPreviewModal'));
-    modal.show();
-    document.getElementById('pdfPreviewModal').addEventListener('hidden.bs.modal', function() {
-        frame.src = '';
-    }, { once: true });
-}
-</script>
-}
+<!-- Status / Notes Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title mb-0">Update Status</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="Status" asp-route-id="@Model.Template.Id">
+                <div class="modal-body">
+                    <input type="hidden" name="sid" id="statusSid" />
+                    <div class="mb-3">
+                        <label class="form-label">Applicant</label>
+                        <div id="statusName" class="fw-semibold"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" id="statusSelect" class="form-select">
+                            <option value="Submitted">Submitted</option>
+                            <option value="Reviewed">Reviewed</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="mb-1">
+                        <label class="form-label">Notes</label>
+                        <textarea name="notes" id="statusNotes" class="form-control" rows="3"
+                                  placeholder="Internal notes (not visible to applicant)…"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-sm btn-mpd">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @if (!Model.Submissions.Any())
 {
@@ -65,29 +100,41 @@ else
 {
     <div class="card shadow-sm">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 align-middle">
                 <thead style="background:#f8f9fa">
-                    <tr><th>Name</th><th>Email</th><th>Submitted</th><th>IP</th><th></th></tr>
+                    <tr><th>Name</th><th>Email</th><th>Submitted</th><th>Status</th><th></th></tr>
                 </thead>
                 <tbody>
                     @foreach (var s in Model.Submissions)
                     {
-                        var previewUrl = $"/Admin/Forms/FormSubmissions/{Model.Template.Id}?sid={s.Id}&handler=Preview";
+                        var previewUrl  = $"/Admin/Forms/FormSubmissions/{Model.Template.Id}?sid={s.Id}&handler=Preview";
                         var downloadUrl = $"/Admin/Forms/FormSubmissions/{Model.Template.Id}?sid={s.Id}&handler=Download";
                         <tr>
-                            <td class="fw-semibold">@(s.ApplicantName ?? "—")</td>
-                            <td>@(s.ApplicantEmail ?? "—")</td>
-                            <td class="text-muted small">@s.SubmittedAt?.ToLocalTime().ToString("M/d/yyyy h:mm tt")</td>
-                            <td class="text-muted small">@s.IpAddress</td>
                             <td>
-                                <div class="d-flex gap-1">
+                                <div class="fw-semibold">@(s.ApplicantName ?? "—")</div>
+                                @if (!string.IsNullOrWhiteSpace(s.Notes))
+                                {
+                                    <div class="text-muted small fst-italic text-truncate" style="max-width:220px">@s.Notes</div>
+                                }
+                            </td>
+                            <td class="small">@(s.ApplicantEmail ?? "—")</td>
+                            <td class="text-muted small">@s.SubmittedAt?.ToLocalTime().ToString("M/d/yyyy h:mm tt")</td>
+                            <td>
+                                <span class="badge @StatusBadge(s.Status)">@s.Status</span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1 justify-content-end">
                                     <button class="btn btn-sm btn-outline-primary"
                                             onclick="openPreview('@previewUrl', '@(s.ApplicantName ?? "Submission")')">
                                         <i class="bi bi-eye me-1"></i>View
                                     </button>
                                     <a href="@downloadUrl" class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-download me-1"></i>Download
+                                        <i class="bi bi-download"></i>
                                     </a>
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                            onclick="openStatus('@s.Id','@(s.ApplicantName ?? "—")','@s.Status','@Html.Raw(s.Notes?.Replace("'","\'") ?? "")')">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -96,4 +143,28 @@ else
             </table>
         </div>
     </div>
+}
+
+@section Scripts {
+<script>
+function openPreview(url, name) {
+    var frame = document.getElementById('pdfPreviewFrame');
+    var loading = document.getElementById('pdfPreviewLoading');
+    document.getElementById('pdfPreviewTitle').textContent = name;
+    frame.style.opacity = '0';
+    loading.style.display = 'block';
+    frame.onload = function() { loading.style.display = 'none'; frame.style.opacity = '1'; };
+    frame.src = url;
+    new bootstrap.Modal(document.getElementById('pdfPreviewModal')).show();
+    document.getElementById('pdfPreviewModal').addEventListener('hidden.bs.modal', function() { frame.src = ''; }, { once: true });
+}
+
+function openStatus(sid, name, status, notes) {
+    document.getElementById('statusSid').value = sid;
+    document.getElementById('statusName').textContent = name;
+    document.getElementById('statusSelect').value = status;
+    document.getElementById('statusNotes').value = notes;
+    new bootstrap.Modal(document.getElementById('statusModal')).show();
+}
+</script>
 }

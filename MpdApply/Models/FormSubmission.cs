@@ -17,6 +17,7 @@ public class FormSubmission
     public string? UserAgent { get; set; }
     public string? PdfHash { get; set; }
     public bool ConsentGiven { get; set; }
+    public string? Notes { get; set; }
 
     public Dictionary<string, string> Values
     {

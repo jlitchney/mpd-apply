@@ -31,7 +31,13 @@ else
                     {
                         <tr>
                             <td class="fw-semibold">@t.Template.Name</td>
-                            <td class="text-muted small"><a href="/Forms/@t.Template.Slug" target="_blank">/Forms/@t.Template.Slug</a></td>
+                            <td class="text-muted small">
+                            <a href="/Forms/@t.Template.Slug" target="_blank">/Forms/@t.Template.Slug</a>
+                            <button class="btn btn-link btn-sm p-0 ms-2 text-muted"
+                                    onclick="copyLink('/Forms/@t.Template.Slug', this)" title="Copy link">
+                                <i class="bi bi-link-45deg"></i>
+                            </button>
+                        </td>
                             <td>
                                 @if (t.Template.IsPublished)
                                 { <span class="badge bg-success">Published</span> }
@@ -51,6 +57,11 @@ else
                                             @(t.Template.IsPublished ? "Unpublish" : "Publish")
                                         </button>
                                     </form>
+                                    <form method="post" asp-page-handler="Duplicate" asp-route-id="@t.Template.Id">
+                                        <button class="btn btn-sm btn-outline-secondary" title="Duplicate form">
+                                            <i class="bi bi-copy"></i>
+                                        </button>
+                                    </form>
                                     <form method="post" asp-page-handler="Delete" asp-route-id="@t.Template.Id"
                                           onsubmit="return confirm('Delete this form and all its submissions?')">
                                         <button class="btn btn-sm btn-outline-danger">Delete</button>
@@ -63,4 +74,16 @@ else
             </table>
         </div>
     </div>
+}
+
+@section Scripts {
+<script>
+function copyLink(path, btn) {
+    navigator.clipboard.writeText(window.location.origin + path).then(function() {
+        var icon = btn.querySelector('i');
+        icon.className = 'bi bi-check text-success';
+        setTimeout(function() { icon.className = 'bi bi-link-45deg'; }, 2000);
+    });
+}
+</script>
 }

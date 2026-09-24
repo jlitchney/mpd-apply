@@ -95,6 +95,34 @@ public class FormsIndexModel(AppDbContext db) : PageModel
         return RedirectToPage();
     }
 
+    public async Task<IActionResult> OnPostDuplicateAsync(Guid id)
+    {
+        var auth = LoginModel.RequireAuth(this);
+        if (auth != null) return auth;
+        var t = await db.FormTemplates.FindAsync(id);
+        if (t == null) return NotFound();
+
+        var newSlug = t.Slug + "-copy";
+        int i = 2;
+        while (await db.FormTemplates.AnyAsync(x => x.Slug == newSlug))
+            newSlug = $"{t.Slug}-copy-{i++}";
+
+        var copy = new FormTemplate
+        {
+            Name = $"Copy of {t.Name}",
+            Slug = newSlug,
+            Description = t.Description,
+            RecipientEmail = t.RecipientEmail,
+            SchemaJson = t.SchemaJson,
+            IsPublished = false,
+            CreatedAt = DateTime.UtcNow
+        };
+        db.FormTemplates.Add(copy);
+        await db.SaveChangesAsync();
+        TempData["Message"] = $"Duplicated \"{t.Name}\" as a draft. Click Edit to rename and adjust.";
+        return RedirectToPage();
+    }
+
     public IActionResult OnPostLogout()
     {
         HttpContext.Session.Remove("AdminAuth");
