@@ -1,9 +1,9 @@
 @model (string Json, string InputName)
-@{
-    var inputId = Model.InputName.Replace(".", "_");
-}
+@{ var inputId = Model.InputName.Replace(".", "_"); }
 
-<ul class="nav nav-tabs mb-0" role="tablist" id="fb-tabs">
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
+
+<ul class="nav nav-tabs mb-0" id="fb-tabs">
     <li class="nav-item">
         <button type="button" class="nav-link active" id="fb-tab-visual" onclick="fbSwitchTab('visual')">
             <i class="bi bi-grid-1x2-fill me-1"></i>Visual Editor
@@ -16,34 +16,32 @@
     </li>
 </ul>
 
-<!-- Visual Editor Pane -->
-<div id="fb-pane-visual" class="border border-top-0 rounded-bottom p-3">
+<div id="fb-pane-visual" class="border border-top-0 rounded-bottom p-3" style="background:#f8f9fa">
     <div id="fb-pages"></div>
-    <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="fbAddPage()">
+    <button type="button" class="btn btn-sm btn-outline-primary mt-1" onclick="fbAddPage()">
         <i class="bi bi-plus me-1"></i>Add Page
     </button>
 </div>
 
-<!-- JSON Pane -->
 <div id="fb-pane-json" class="border border-top-0 rounded-bottom" style="display:none">
     <textarea name="@Model.InputName" id="@inputId"
               class="form-control font-monospace border-0 rounded-bottom"
-              rows="22" style="font-size:0.78rem">@Model.Json</textarea>
+              rows="22" style="font-size:.78rem">@Model.Json</textarea>
 </div>
 
-<!-- Field Edit Modal -->
+<!-- Field edit modal -->
 <div class="modal fade" id="fbFieldModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="fbFieldModalTitle">Field</h5>
+            <div class="modal-header py-2">
+                <h6 class="modal-title mb-0" id="fbModalTitle">Field</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="row g-3">
                     <div class="col-md-5" id="fm-row-type">
-                        <label class="form-label fw-semibold">Field Type</label>
-                        <select id="fm-type" class="form-select" onchange="fbUpdateModalVisibility()">
+                        <label class="form-label fw-semibold small">Type</label>
+                        <select id="fm-type" class="form-select form-select-sm" onchange="fbUpdateModal()">
                             <optgroup label="Input Fields">
                                 <option value="text">Text</option>
                                 <option value="email">Email</option>
@@ -71,13 +69,13 @@
                         </select>
                     </div>
                     <div class="col-md-4" id="fm-row-key">
-                        <label class="form-label fw-semibold">Field Key <span class="text-danger">*</span></label>
-                        <input type="text" id="fm-key" class="form-control" placeholder="field_key" />
-                        <div class="form-text">Unique, snake_case identifier</div>
+                        <label class="form-label fw-semibold small">Key <span class="text-danger">*</span></label>
+                        <input id="fm-key" class="form-control form-control-sm" placeholder="field_key" />
+                        <div class="form-text" style="font-size:.7rem">Unique, snake_case</div>
                     </div>
                     <div class="col-md-3" id="fm-row-width">
-                        <label class="form-label fw-semibold">Width</label>
-                        <select id="fm-width" class="form-select">
+                        <label class="form-label fw-semibold small">Width</label>
+                        <select id="fm-width" class="form-select form-select-sm">
                             <option value="full">Full width</option>
                             <option value="half">Half (50%)</option>
                             <option value="third">Third (33%)</option>
@@ -85,45 +83,40 @@
                         </select>
                     </div>
                     <div class="col-12" id="fm-row-label">
-                        <label class="form-label fw-semibold">Label</label>
-                        <input type="text" id="fm-label" class="form-control"
-                               placeholder="Label shown to applicant" oninput="fbAutoKey()" />
+                        <label class="form-label fw-semibold small">Label</label>
+                        <input id="fm-label" class="form-control form-control-sm" placeholder="Label shown to applicant" oninput="fbAutoKey()" />
                     </div>
                     <div class="col-12" id="fm-row-content">
-                        <label class="form-label fw-semibold">Content</label>
-                        <textarea id="fm-content" class="form-control" rows="5"
-                                  placeholder="Paragraph text shown to applicant..."></textarea>
+                        <label class="form-label fw-semibold small">Content</label>
+                        <textarea id="fm-content" class="form-control form-control-sm" rows="5" placeholder="Paragraph text..."></textarea>
                     </div>
                     <div class="col-12" id="fm-row-options">
-                        <label class="form-label fw-semibold">
-                            Options <span class="text-muted fw-normal small">— one per line</span>
-                        </label>
-                        <textarea id="fm-options" class="form-control font-monospace" rows="5"
-                                  placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
+                        <label class="form-label fw-semibold small">Options <span class="fw-normal text-muted">(one per line)</span></label>
+                        <textarea id="fm-options" class="form-control form-control-sm font-monospace" rows="5" placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
                     </div>
                     <div class="col-md-6" id="fm-row-placeholder">
-                        <label class="form-label">Placeholder Text</label>
-                        <input type="text" id="fm-placeholder" class="form-control" />
+                        <label class="form-label small">Placeholder</label>
+                        <input id="fm-placeholder" class="form-control form-control-sm" />
                     </div>
                     <div class="col-md-6" id="fm-row-helptext">
-                        <label class="form-label">Help Text</label>
-                        <input type="text" id="fm-helptext" class="form-control" />
+                        <label class="form-label small">Help Text</label>
+                        <input id="fm-helptext" class="form-control form-control-sm" />
                     </div>
-                    <div class="col-md-3" id="fm-row-rows">
-                        <label class="form-label">Textarea Rows</label>
-                        <input type="number" id="fm-rows" class="form-control" value="3" min="2" max="20" />
+                    <div class="col-md-2" id="fm-row-rows">
+                        <label class="form-label small">Rows</label>
+                        <input type="number" id="fm-rows" class="form-control form-control-sm" value="3" min="2" max="20" />
                     </div>
-                    <div class="col-md-3 d-flex align-items-end" id="fm-row-required">
-                        <div class="form-check mb-2">
+                    <div class="col-md-4 d-flex align-items-end" id="fm-row-required">
+                        <div class="form-check mb-1">
                             <input type="checkbox" id="fm-required" class="form-check-input" />
-                            <label class="form-check-label fw-semibold" for="fm-required">Required</label>
+                            <label class="form-check-label small fw-semibold" for="fm-required">Required field</label>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" onclick="fbSaveField()">
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-success" onclick="fbSaveField()">
                     <i class="bi bi-check-lg me-1"></i>Save Field
                 </button>
             </div>
@@ -132,44 +125,121 @@
 </div>
 
 <style>
-.fb-page-hdr {
-    background: #285190; color: #fff; padding: .45rem .75rem;
-    border-radius: 4px 4px 0 0; display: flex; align-items: center; gap: .4rem;
+/* ── Page cards ─────────────────────────────────────────────── */
+.fb-page-card { background:#fff; border:1px solid #dee2e6; border-radius:8px; margin-bottom:12px; }
+.fb-page-hdr  { background:#285190; color:#fff; padding:8px 12px; border-radius:7px 7px 0 0; display:flex; align-items:center; gap:8px; }
+.fb-page-body { padding:12px; }
+.fb-page-drag  { cursor:grab; opacity:.55; font-size:1.1rem; line-height:1; }
+.fb-page-drag:hover { opacity:1; }
+.fb-page-drag:active { cursor:grabbing; }
+.fb-ph-btn { border:none; background:none; color:rgba(255,255,255,.65); padding:3px 6px; border-radius:4px; cursor:pointer; font-size:.78rem; }
+.fb-ph-btn:hover { background:rgba(255,255,255,.18); color:#fff; }
+.fb-ph-btn.del:hover { background:rgba(220,53,69,.55); color:#fff; }
+
+/* ── Field canvas (flex grid) ───────────────────────────────── */
+.fb-canvas { display:flex; flex-wrap:wrap; gap:8px; min-height:56px; border-radius:6px; padding:4px 2px; align-items:flex-start; }
+
+/* Width slots — mirror actual form widths */
+.fb-w-full    { width:100%; }
+.fb-w-half    { width:calc(50% - 4px); min-width:180px; }
+.fb-w-third   { width:calc(33.333% - 6px); min-width:150px; }
+.fb-w-quarter { width:calc(25% - 6px); min-width:130px; }
+
+/* ── Normal field card ──────────────────────────────────────── */
+.fb-field-card {
+  height:100%; background:#fff;
+  border:1.5px solid #dee2e6; border-radius:6px;
+  display:flex; align-items:flex-start; gap:6px;
+  padding:8px 6px 8px 6px;
+  transition:border-color .13s, box-shadow .13s;
 }
-.fb-page-hdr .fb-page-title { flex-grow: 1; font-weight: 600; font-size: .9rem; }
-.fb-page-body {
-    border: 1px solid #dee2e6; border-top: 0;
-    border-radius: 0 0 4px 4px; padding: .75rem; margin-bottom: 1rem;
+.fb-field-card:hover { border-color:#285190; box-shadow:0 0 0 3px rgba(40,81,144,.09); }
+
+/* ── Drag handle (shared) ───────────────────────────────────── */
+.fb-handle {
+  cursor:grab; color:#c8cfd8; font-size:1rem; flex-shrink:0;
+  margin-top:2px; padding:0 1px; line-height:1; user-select:none;
 }
-.fb-field-row {
-    display: flex; align-items: center; gap: .4rem;
-    padding: .3rem .5rem; border: 1px solid #e9ecef;
-    border-radius: 4px; margin-bottom: .3rem; background: #fff;
+.fb-handle:hover { color:#6c757d; }
+.fb-handle:active { cursor:grabbing; }
+
+/* ── Action buttons (shown on hover) ───────────────────────── */
+.fb-acts { display:flex; gap:2px; flex-shrink:0; visibility:hidden; margin-left:auto; align-self:flex-start; margin-top:-1px; }
+.fb-field-card:hover .fb-acts,
+.fb-sec-row:hover .fb-acts,
+.fb-para-row:hover .fb-acts,
+.fb-info-row:hover .fb-acts { visibility:visible; }
+.fb-act { border:none; background:none; padding:2px 5px; border-radius:3px; cursor:pointer; color:#6c757d; font-size:.75rem; }
+.fb-act:hover { background:#e9ecef; color:#212529; }
+.fb-act.del:hover { background:#f8d7da; color:#842029; }
+
+/* ── Field preview content ──────────────────────────────────── */
+.fb-preview { flex-grow:1; min-width:0; }
+.fb-preview .form-label { font-size:.78rem; font-weight:600; margin-bottom:3px; }
+.fb-preview .form-control,
+.fb-preview .form-select { font-size:.75rem; pointer-events:none; }
+.fb-preview textarea { resize:none; }
+.fb-preview .form-check-label { font-size:.75rem; }
+
+/* ── Section header row ─────────────────────────────────────── */
+.fb-sec-row {
+  width:100%; display:flex; align-items:center; gap:8px;
+  border-bottom:2px solid #285190; padding:5px 4px 6px;
+  color:#285190; font-weight:600; font-size:.88rem;
 }
-.fb-field-row:hover { background: #f8f9fa; }
-.fb-type-badge {
-    font-size: .68rem; padding: .12rem .38rem; border-radius: 3px;
-    font-weight: 700; white-space: nowrap; flex-shrink: 0;
+.fb-sec-row .fb-acts { margin-top:0; }
+
+/* ── Paragraph row ──────────────────────────────────────────── */
+.fb-para-row {
+  width:100%; display:flex; align-items:flex-start; gap:8px;
+  background:#f1f3f5; border-radius:5px; padding:7px 8px;
 }
-.fb-field-label { flex-grow: 1; font-size: .84rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fb-field-key-tag { font-size: .7rem; color: #6c757d; flex-shrink: 0; }
-.fb-icon-btn {
-    border: none; background: none; padding: .18rem .38rem;
-    border-radius: 3px; cursor: pointer; color: #495057; line-height: 1;
+.fb-para-row .fb-acts { margin-top:0; }
+.fb-para-text { flex-grow:1; font-size:.78rem; color:#6c757d; font-style:italic; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+
+/* ── Info banner (initials panel / reminder) ────────────────── */
+.fb-info-row {
+  width:100%; display:flex; align-items:center; gap:8px;
+  background:#e8f0fe; border:1px solid #c6d4f3;
+  border-radius:5px; padding:7px 10px;
+  color:#285190; font-size:.82rem;
 }
-.fb-icon-btn:hover { background: #e9ecef; }
-.fb-icon-btn.danger:hover { background: #f8d7da; color: #842029; }
+
+/* ── Signature preview ──────────────────────────────────────── */
+.fb-sig-box {
+  border:1.5px dashed #ced4da; border-radius:4px; height:44px;
+  display:flex; align-items:center; justify-content:center;
+  background:#fafafa; color:#adb5bd; font-size:.78rem;
+}
+
+/* ── Initials preview ───────────────────────────────────────── */
+.fb-init-box {
+  border:1.5px solid #ced4da; border-radius:4px;
+  width:52px; height:28px; background:#f8f9fa; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  color:#adb5bd; font-size:.68rem;
+}
+
+/* ── Add field button ───────────────────────────────────────── */
+.fb-add-btn {
+  width:100%; border:2px dashed #ced4da; border-radius:6px;
+  padding:8px; color:#6c757d; font-size:.82rem; background:none;
+  cursor:pointer; text-align:center; margin-top:6px;
+  transition:border-color .12s, color .12s, background .12s;
+}
+.fb-add-btn:hover { border-color:#285190; color:#285190; background:rgba(40,81,144,.04); }
+
+/* ── SortableJS ─────────────────────────────────────────────── */
+.fb-ghost { opacity:.2 !important; background:rgba(40,81,144,.07) !important; border:2px dashed #285190 !important; border-radius:6px; }
 </style>
 
 <script>
 (function () {
     const TA_ID = '@inputId';
     let schema = { pages: [] };
-    let editPage = -1;
-    let editField = -1;
-    let autoKeyLocked = false;
+    let editPage = -1, editField = -1, autoKeyLocked = false;
+    const sortables = {};
 
-    // ── Type config ────────────────────────────────────────────────────────
     const TYPE_PROPS = {
         text:              ['key','label','width','required','placeholder','helptext'],
         email:             ['key','label','width','required','placeholder','helptext'],
@@ -189,87 +259,53 @@
         paragraph:         ['key','content'],
     };
 
-    const TYPE_BADGE = {
-        text:              ['bg-secondary text-white','text'],
-        email:             ['bg-secondary text-white','email'],
-        tel:               ['bg-secondary text-white','phone'],
-        date:              ['bg-secondary text-white','date'],
-        number:            ['bg-secondary text-white','number'],
-        textarea:          ['bg-secondary text-white','textarea'],
-        select:            ['bg-primary text-white','select'],
-        radio:             ['bg-primary text-white','radio'],
-        yesno:             ['bg-primary text-white','yes/no'],
-        checkbox:          ['bg-primary text-white','checkbox'],
-        signature:         ['bg-danger text-white','signature'],
-        initials:          ['bg-warning text-dark','initials'],
-        initials_panel:    ['bg-info text-dark','init-panel'],
-        initials_reminder: ['bg-info text-dark','init-remind'],
-        section_header:    ['bg-dark text-white','header'],
-        paragraph:         ['bg-light text-dark border','paragraph'],
-    };
-
-    // ── Init ───────────────────────────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', function () {
-        loadFromTextarea();
+    // ── Init ──────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        loadFromTA();
         renderVisual();
-
         const ta = document.getElementById(TA_ID);
         if (ta) {
             const form = ta.closest('form');
             if (form) form.addEventListener('submit', () => {
-                if (document.getElementById('fb-pane-visual').style.display !== 'none') {
-                    saveToTextarea();
-                }
+                if (document.getElementById('fb-pane-visual').style.display !== 'none') saveToTA();
             });
         }
-
-        document.getElementById('fm-key').addEventListener('input', function () {
-            autoKeyLocked = !!this.value;
-        });
+        document.getElementById('fm-key').addEventListener('input', function () { autoKeyLocked = !!this.value; });
     });
 
-    // ── State helpers ──────────────────────────────────────────────────────
-    function loadFromTextarea() {
+    function loadFromTA() {
         const ta = document.getElementById(TA_ID);
         const val = ta ? ta.value.trim() : '';
         try {
-            const parsed = val ? JSON.parse(val) : null;
-            schema = (parsed && Array.isArray(parsed.pages)) ? parsed : { pages: [] };
+            const p = val ? JSON.parse(val) : null;
+            schema = (p && Array.isArray(p.pages)) ? p : { pages: [] };
             if (!schema.pages.length) schema.pages.push({ title: 'Page 1', fields: [] });
         } catch (e) {
             schema = { pages: [{ title: 'Page 1', fields: [] }] };
         }
     }
 
-    function saveToTextarea() {
+    function saveToTA() {
         const ta = document.getElementById(TA_ID);
         if (ta) ta.value = JSON.stringify(schema, null, 2);
     }
 
-    // ── Tab switching ──────────────────────────────────────────────────────
+    // ── Tab ───────────────────────────────────────────────────────────────
     window.fbSwitchTab = function (tab) {
         const toVisual = tab === 'visual';
         if (toVisual) {
             const ta = document.getElementById(TA_ID);
-            const val = ta ? ta.value.trim() : '';
             try {
-                const parsed = val ? JSON.parse(val) : null;
-                if (parsed && Array.isArray(parsed.pages)) {
-                    schema = parsed;
-                } else if (val) {
-                    alert('JSON is invalid — fix it before switching to Visual Editor.');
-                    return;
-                }
-            } catch (e) {
-                alert('JSON is invalid — fix it before switching to Visual Editor.\n\n' + e.message);
-                return;
-            }
+                const p = JSON.parse(ta.value.trim());
+                if (p && Array.isArray(p.pages)) schema = p;
+                else if (ta.value.trim()) { alert('Invalid JSON — fix before switching.'); return; }
+            } catch (e) { alert('Invalid JSON:\n' + e.message); return; }
             renderVisual();
         } else {
-            saveToTextarea();
+            saveToTA();
         }
         document.getElementById('fb-pane-visual').style.display = toVisual ? '' : 'none';
-        document.getElementById('fb-pane-json').style.display = toVisual ? 'none' : '';
+        document.getElementById('fb-pane-json').style.display   = toVisual ? 'none' : '';
         document.getElementById('fb-tab-visual').classList.toggle('active', toVisual);
         document.getElementById('fb-tab-json').classList.toggle('active', !toVisual);
     };
@@ -279,120 +315,216 @@
         const container = document.getElementById('fb-pages');
         container.innerHTML = '';
         schema.pages.forEach((page, pi) => container.appendChild(buildPageEl(page, pi)));
+        initSortables();
     }
 
     function buildPageEl(page, pi) {
-        const wrap = document.createElement('div');
-
-        const hdr = document.createElement('div');
-        hdr.className = 'fb-page-hdr';
-        hdr.innerHTML =
-            `<span class="fb-page-title">Page ${pi + 1}</span>` +
-            `<button type="button" class="fb-icon-btn" title="Move up" onclick="fbMovePage(${pi},-1)"><i class="bi bi-chevron-up"></i></button>` +
-            `<button type="button" class="fb-icon-btn" title="Move down" onclick="fbMovePage(${pi},1)"><i class="bi bi-chevron-down"></i></button>` +
-            `<button type="button" class="fb-icon-btn danger" title="Delete page" onclick="fbDeletePage(${pi})"><i class="bi bi-x-lg"></i></button>`;
-        wrap.appendChild(hdr);
-
-        const body = document.createElement('div');
-        body.className = 'fb-page-body';
-        body.innerHTML =
+        const div = document.createElement('div');
+        div.className = 'fb-page-card';
+        div.dataset.pageIdx = pi;
+        div.innerHTML =
+            `<div class="fb-page-hdr">` +
+            `<span class="fb-page-drag" title="Drag to reorder page">⠿</span>` +
+            `<span style="font-weight:600;font-size:.9rem;flex-grow:1">Page ${pi + 1}</span>` +
+            `<button type="button" class="fb-ph-btn del" onclick="fbDeletePage(${pi})" title="Delete page"><i class="bi bi-trash"></i></button>` +
+            `</div>` +
+            `<div class="fb-page-body">` +
             `<div class="row g-2 mb-3">` +
             `<div class="col-md-4"><label class="form-label small fw-semibold mb-1">Page Title</label>` +
-            `<input type="text" class="form-control form-control-sm" value="${esc(page.title || '')}" onchange="fbUpdatePage(${pi},'title',this.value)" /></div>` +
-            `<div class="col-md-8"><label class="form-label small fw-semibold mb-1">Intro Text <span class="text-muted fw-normal">(optional)</span></label>` +
-            `<input type="text" class="form-control form-control-sm" value="${esc(page.intro || '')}" onchange="fbUpdatePage(${pi},'intro',this.value)" /></div>` +
+            `<input type="text" class="form-control form-control-sm" value="${esc(page.title || '')}" onchange="fbUpdatePage(${pi},'title',this.value)"/></div>` +
+            `<div class="col-md-8"><label class="form-label small fw-semibold mb-1">Intro Text <span class="fw-normal text-muted">(optional)</span></label>` +
+            `<input type="text" class="form-control form-control-sm" value="${esc(page.intro || '')}" onchange="fbUpdatePage(${pi},'intro',this.value)"/></div>` +
             `</div>` +
-            `<div id="fb-fields-${pi}">${buildFieldsHtml(page.fields || [], pi)}</div>` +
-            `<button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="fbAddField(${pi})">` +
-            `<i class="bi bi-plus me-1"></i>Add Field</button>`;
-        wrap.appendChild(body);
-        return wrap;
+            `<div class="fb-canvas" data-pi="${pi}">${buildFieldsHtml(page.fields || [], pi)}</div>` +
+            `<button type="button" class="fb-add-btn" onclick="fbAddField(${pi})"><i class="bi bi-plus-circle me-1"></i>Add Field</button>` +
+            `</div>`;
+        return div;
     }
 
     function buildFieldsHtml(fields, pi) {
-        if (!fields.length) {
-            return '<div class="text-muted small py-2 text-center">No fields yet — click Add Field below.</div>';
-        }
-        return fields.map((f, fi) => buildFieldRowHtml(f, pi, fi)).join('');
+        return fields.map((f, fi) => buildSlotHtml(f, pi, fi)).join('');
     }
 
-    function buildFieldRowHtml(f, pi, fi) {
-        const b = TYPE_BADGE[f.type] || ['bg-light border', f.type];
-        const label = f.type === 'paragraph' ? '(paragraph block)' :
-            f.type === 'initials_panel' ? '(initials setup panel)' :
-            f.type === 'initials_reminder' ? '(initials reminder)' :
-            escHtml(f.label || f.key || '');
-        const keyTag = f.key && f.type !== 'initials_panel' && f.type !== 'initials_reminder'
-            ? `<span class="fb-field-key-tag">[${escHtml(f.key)}]</span>` : '';
-        const req = f.required ? '<span class="text-danger ms-1" title="Required">*</span>' : '';
-        return `<div class="fb-field-row">` +
-            `<span class="fb-type-badge ${b[0]}">${b[1]}</span>` +
-            `<span class="fb-field-label">${label}${req}</span>` +
-            `${keyTag}` +
-            `<button type="button" class="fb-icon-btn" title="Edit field" onclick="fbOpenFieldModal(${pi},${fi})"><i class="bi bi-pencil-fill"></i></button>` +
-            `<button type="button" class="fb-icon-btn" title="Move up" onclick="fbMoveField(${pi},${fi},-1)"><i class="bi bi-chevron-up"></i></button>` +
-            `<button type="button" class="fb-icon-btn" title="Move down" onclick="fbMoveField(${pi},${fi},1)"><i class="bi bi-chevron-down"></i></button>` +
-            `<button type="button" class="fb-icon-btn danger" title="Delete field" onclick="fbDeleteField(${pi},${fi})"><i class="bi bi-trash"></i></button>` +
-            `</div>`;
+    function buildSlotHtml(f, pi, fi) {
+        const editBtn = (f.type !== 'initials_panel' && f.type !== 'initials_reminder')
+            ? `<button type="button" class="fb-act" onclick="fbOpenFieldModal(${pi},${fi})" title="Edit"><i class="bi bi-pencil-fill"></i></button>`
+            : '';
+        const delBtn = `<button type="button" class="fb-act del" onclick="fbDeleteField(${pi},${fi})" title="Delete"><i class="bi bi-trash"></i></button>`;
+        const acts = `<div class="fb-acts">${editBtn}${delBtn}</div>`;
+
+        if (f.type === 'section_header') {
+            return `<div class="fb-w-full fb-sec-row" data-fi="${fi}">` +
+                `<span class="fb-handle" title="Drag to reorder">⠿</span>` +
+                `<span style="flex-grow:1">${escH(f.label || '(Section Header)')}</span>` +
+                acts + `</div>`;
+        }
+        if (f.type === 'paragraph') {
+            const txt = (f.content || '(empty paragraph)').substring(0, 160);
+            return `<div class="fb-w-full fb-para-row" data-fi="${fi}">` +
+                `<span class="fb-handle" title="Drag to reorder">⠿</span>` +
+                `<i class="bi bi-text-paragraph text-muted flex-shrink-0" style="margin-top:2px"></i>` +
+                `<span class="fb-para-text">${escH(txt)}${(f.content || '').length > 160 ? '…' : ''}</span>` +
+                acts + `</div>`;
+        }
+        if (f.type === 'initials_panel' || f.type === 'initials_reminder') {
+            const icon = f.type === 'initials_panel' ? 'bi-keyboard' : 'bi-bell-fill';
+            const label = f.type === 'initials_panel' ? 'Initials Setup Panel' : 'Initials Reminder';
+            return `<div class="fb-w-full fb-info-row" data-fi="${fi}">` +
+                `<span class="fb-handle" title="Drag to reorder">⠿</span>` +
+                `<i class="bi ${icon}"></i><span style="flex-grow:1">${label}</span>` +
+                acts + `</div>`;
+        }
+
+        const wc = ({ half: 'fb-w-half', third: 'fb-w-third', quarter: 'fb-w-quarter' })[f.width] || 'fb-w-full';
+        return `<div class="${wc}" data-fi="${fi}">` +
+            `<div class="fb-field-card">` +
+            `<span class="fb-handle" title="Drag to reorder">⠿</span>` +
+            `<div class="fb-preview">${buildPreview(f)}</div>` +
+            acts +
+            `</div></div>`;
+    }
+
+    function buildPreview(f) {
+        const lbl  = escH(f.label || f.key || '');
+        const req  = f.required ? '<span class="text-danger ms-1">*</span>' : '';
+        const labelHtml = `<div class="form-label">${lbl}${req}</div>`;
+
+        switch (f.type) {
+            case 'textarea':
+                return labelHtml +
+                    `<textarea class="form-control form-control-sm" rows="${Math.min(f.rows || 3, 3)}" disabled ` +
+                    `placeholder="${escA(f.placeholder || '')}" style="resize:none"></textarea>`;
+
+            case 'select': {
+                const opts = (f.options || []).slice(0, 5).map(o => `<option>${escH(o)}</option>`).join('');
+                const more = f.options && f.options.length > 5
+                    ? `<option disabled>+ ${f.options.length - 5} more…</option>` : '';
+                return labelHtml +
+                    `<select class="form-select form-select-sm" disabled><option>-- Select --</option>${opts}${more}</select>`;
+            }
+
+            case 'radio': {
+                const opts = (f.options || []).slice(0, 4);
+                const more = f.options && f.options.length > 4
+                    ? `<span class="text-muted ms-1" style="font-size:.7rem">+${f.options.length - 4} more</span>` : '';
+                const radios = opts.map(o =>
+                    `<div class="form-check form-check-inline mb-0">` +
+                    `<input type="radio" class="form-check-input" disabled>` +
+                    `<label class="form-check-label">${escH(o)}</label></div>`
+                ).join('');
+                return labelHtml + `<div>${radios}${more}</div>`;
+            }
+
+            case 'yesno':
+                return labelHtml +
+                    `<div class="d-flex gap-3">` +
+                    `<div class="form-check"><input type="radio" class="form-check-input" disabled><label class="form-check-label">Yes</label></div>` +
+                    `<div class="form-check"><input type="radio" class="form-check-input" disabled><label class="form-check-label">No</label></div>` +
+                    `</div>`;
+
+            case 'checkbox':
+                return `<div class="form-check mt-1">` +
+                    `<input type="checkbox" class="form-check-input" disabled>` +
+                    `<label class="form-check-label">${lbl}${req}</label></div>`;
+
+            case 'signature':
+                return labelHtml +
+                    `<div class="fb-sig-box"><i class="bi bi-pen me-1"></i>Signature area</div>`;
+
+            case 'initials':
+                return `<div class="d-flex align-items-center gap-2">` +
+                    `<div class="fb-init-box">init</div>` +
+                    `<span class="form-label mb-0" style="font-size:.78rem">${lbl}${req}</span></div>`;
+
+            default: { // text, email, tel, date, number
+                const t = ['text', 'email', 'tel', 'date', 'number'].includes(f.type) ? f.type : 'text';
+                return labelHtml +
+                    `<input type="${t}" class="form-control form-control-sm" disabled placeholder="${escA(f.placeholder || '')}">`;
+            }
+        }
+    }
+
+    // ── SortableJS ─────────────────────────────────────────────────────────
+    function initSortables() {
+        // Pages drag-and-drop
+        if (sortables._pages) { try { sortables._pages.destroy(); } catch (e) {} }
+        sortables._pages = Sortable.create(document.getElementById('fb-pages'), {
+            handle: '.fb-page-drag',
+            animation: 150,
+            ghostClass: 'fb-ghost',
+            onEnd(evt) {
+                if (evt.oldIndex === evt.newIndex) return;
+                const cards = document.querySelectorAll('.fb-page-card');
+                const old = [...schema.pages];
+                schema.pages = Array.from(cards).map(el => old[parseInt(el.dataset.pageIdx)]);
+                renderVisual();
+                saveToTA();
+            }
+        });
+        // Fields drag-and-drop (one per page)
+        schema.pages.forEach((_, pi) => initFieldSortable(pi));
+    }
+
+    function initFieldSortable(pi) {
+        const el = document.querySelector(`.fb-canvas[data-pi="${pi}"]`);
+        if (!el) return;
+        if (sortables[pi]) { try { sortables[pi].destroy(); } catch (e) {} }
+        sortables[pi] = Sortable.create(el, {
+            handle: '.fb-handle',
+            draggable: '[data-fi]',
+            animation: 150,
+            ghostClass: 'fb-ghost',
+            onEnd(evt) {
+                const oi = evt.oldDraggableIndex, ni = evt.newDraggableIndex;
+                if (oi == null || ni == null || oi === ni) return;
+                const fields = schema.pages[pi].fields;
+                const [moved] = fields.splice(oi, 1);
+                fields.splice(ni, 0, moved);
+                refreshCanvas(pi);
+                saveToTA();
+            }
+        });
+    }
+
+    function refreshCanvas(pi) {
+        const el = document.querySelector(`.fb-canvas[data-pi="${pi}"]`);
+        if (!el) return;
+        el.innerHTML = buildFieldsHtml(schema.pages[pi].fields, pi);
+        initFieldSortable(pi);
     }
 
     // ── Page actions ───────────────────────────────────────────────────────
     window.fbAddPage = function () {
         schema.pages.push({ title: `Page ${schema.pages.length + 1}`, fields: [] });
-        renderVisual(); saveToTextarea();
+        renderVisual(); saveToTA();
     };
-
     window.fbDeletePage = function (pi) {
         if (schema.pages.length <= 1) { alert('A form must have at least one page.'); return; }
         if (!confirm(`Delete Page ${pi + 1} and all its fields?`)) return;
         schema.pages.splice(pi, 1);
-        renderVisual(); saveToTextarea();
+        renderVisual(); saveToTA();
     };
-
-    window.fbMovePage = function (pi, dir) {
-        const to = pi + dir;
-        if (to < 0 || to >= schema.pages.length) return;
-        [schema.pages[pi], schema.pages[to]] = [schema.pages[to], schema.pages[pi]];
-        renderVisual(); saveToTextarea();
-    };
-
-    window.fbUpdatePage = function (pi, prop, val) {
-        schema.pages[pi][prop] = val;
-        saveToTextarea();
-    };
+    window.fbUpdatePage = function (pi, prop, val) { schema.pages[pi][prop] = val; saveToTA(); };
 
     // ── Field actions ──────────────────────────────────────────────────────
     window.fbAddField = function (pi) {
         editPage = pi; editField = -1; autoKeyLocked = false;
         resetModal();
-        document.getElementById('fbFieldModalTitle').textContent = 'Add Field';
+        document.getElementById('fbModalTitle').textContent = 'Add Field';
         new bootstrap.Modal(document.getElementById('fbFieldModal')).show();
     };
-
     window.fbOpenFieldModal = function (pi, fi) {
         editPage = pi; editField = fi; autoKeyLocked = true;
         populateModal(schema.pages[pi].fields[fi]);
-        document.getElementById('fbFieldModalTitle').textContent = 'Edit Field';
+        document.getElementById('fbModalTitle').textContent = 'Edit Field';
         new bootstrap.Modal(document.getElementById('fbFieldModal')).show();
     };
-
-    window.fbMoveField = function (pi, fi, dir) {
-        const fields = schema.pages[pi].fields;
-        const to = fi + dir;
-        if (to < 0 || to >= fields.length) return;
-        [fields[fi], fields[to]] = [fields[to], fields[fi]];
-        document.getElementById(`fb-fields-${pi}`).innerHTML = buildFieldsHtml(fields, pi);
-        saveToTextarea();
-    };
-
     window.fbDeleteField = function (pi, fi) {
         schema.pages[pi].fields.splice(fi, 1);
-        document.getElementById(`fb-fields-${pi}`).innerHTML = buildFieldsHtml(schema.pages[pi].fields, pi);
-        saveToTextarea();
+        refreshCanvas(pi); saveToTA();
     };
-
     window.fbSaveField = function () {
-        const type = document.getElementById('fm-type').value;
+        const type  = document.getElementById('fm-type').value;
         const props = TYPE_PROPS[type] || [];
         const field = { type };
 
@@ -401,106 +533,69 @@
             if (!key) { alert('Field Key is required.'); return; }
             field.key = key;
         } else {
-            // auto-key for types with no key shown
             field.key = type + '_' + Math.random().toString(36).slice(2, 7);
         }
+        if (props.includes('label'))   { const v = document.getElementById('fm-label').value.trim(); if (v) field.label = v; }
+        if (props.includes('content')) { field.content = document.getElementById('fm-content').value; }
+        if (props.includes('width'))   { field.width = document.getElementById('fm-width').value; }
+        if (props.includes('required') && document.getElementById('fm-required').checked) field.required = true;
+        if (props.includes('placeholder')) { const v = document.getElementById('fm-placeholder').value.trim(); if (v) field.placeholder = v; }
+        if (props.includes('helptext'))    { const v = document.getElementById('fm-helptext').value.trim(); if (v) field.helpText = v; }
+        if (props.includes('rows'))    { field.rows = parseInt(document.getElementById('fm-rows').value) || 3; }
+        if (props.includes('options')) { field.options = document.getElementById('fm-options').value.split('\n').map(s => s.trim()).filter(Boolean); }
 
-        if (props.includes('label')) {
-            field.label = document.getElementById('fm-label').value.trim() || undefined;
-        }
-        if (props.includes('content')) {
-            field.content = document.getElementById('fm-content').value || undefined;
-        }
-        if (props.includes('width')) {
-            field.width = document.getElementById('fm-width').value || undefined;
-        }
-        if (props.includes('required') && document.getElementById('fm-required').checked) {
-            field.required = true;
-        }
-        if (props.includes('placeholder')) {
-            const ph = document.getElementById('fm-placeholder').value.trim();
-            if (ph) field.placeholder = ph;
-        }
-        if (props.includes('helptext')) {
-            const ht = document.getElementById('fm-helptext').value.trim();
-            if (ht) field.helpText = ht;
-        }
-        if (props.includes('rows')) {
-            field.rows = parseInt(document.getElementById('fm-rows').value) || 3;
-        }
-        if (props.includes('options')) {
-            field.options = document.getElementById('fm-options').value
-                .split('\n').map(s => s.trim()).filter(Boolean);
-        }
-
-        // Clean up undefined values
         Object.keys(field).forEach(k => field[k] === undefined && delete field[k]);
 
-        const fields = schema.pages[editPage].fields;
-        if (editField >= 0) fields[editField] = field; else fields.push(field);
+        if (editField >= 0) schema.pages[editPage].fields[editField] = field;
+        else schema.pages[editPage].fields.push(field);
 
-        document.getElementById(`fb-fields-${editPage}`).innerHTML = buildFieldsHtml(fields, editPage);
-        saveToTextarea();
+        refreshCanvas(editPage); saveToTA();
         bootstrap.Modal.getInstance(document.getElementById('fbFieldModal')).hide();
     };
 
     // ── Modal helpers ──────────────────────────────────────────────────────
-    window.fbUpdateModalVisibility = function () {
-        const type = document.getElementById('fm-type').value;
-        const props = TYPE_PROPS[type] || [];
-        const rows = ['key', 'label', 'content', 'width', 'required',
-                      'placeholder', 'helptext', 'rows', 'options'];
-        rows.forEach(r => {
+    window.fbUpdateModal = function () {
+        const props = TYPE_PROPS[document.getElementById('fm-type').value] || [];
+        ['key','label','content','width','required','placeholder','helptext','rows','options'].forEach(r => {
             const el = document.getElementById(`fm-row-${r}`);
             if (el) el.style.display = props.includes(r) ? '' : 'none';
         });
     };
-
     window.fbAutoKey = function () {
         if (autoKeyLocked) return;
-        const type = document.getElementById('fm-type').value;
+        const type  = document.getElementById('fm-type').value;
         const props = TYPE_PROPS[type] || [];
         if (!props.includes('key')) return;
         const prefix = type === 'section_header' ? 'sec_' : '';
-        const raw = document.getElementById('fm-label').value;
-        document.getElementById('fm-key').value = prefix + raw.toLowerCase()
-            .replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '_').substring(0, 40);
+        document.getElementById('fm-key').value = prefix +
+            document.getElementById('fm-label').value
+                .toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '_').substring(0, 40);
     };
 
     function resetModal() {
         document.getElementById('fm-type').value = 'text';
-        document.getElementById('fm-key').value = '';
-        document.getElementById('fm-label').value = '';
-        document.getElementById('fm-content').value = '';
+        ['fm-key','fm-label','fm-content','fm-placeholder','fm-helptext','fm-options'].forEach(id => { document.getElementById(id).value = ''; });
         document.getElementById('fm-width').value = 'full';
         document.getElementById('fm-required').checked = false;
-        document.getElementById('fm-placeholder').value = '';
-        document.getElementById('fm-helptext').value = '';
         document.getElementById('fm-rows').value = '3';
-        document.getElementById('fm-options').value = '';
-        fbUpdateModalVisibility();
+        fbUpdateModal();
     }
-
     function populateModal(f) {
-        document.getElementById('fm-type').value = f.type || 'text';
-        document.getElementById('fm-key').value = f.key || '';
-        document.getElementById('fm-label').value = f.label || '';
-        document.getElementById('fm-content').value = f.content || '';
-        document.getElementById('fm-width').value = f.width || 'full';
-        document.getElementById('fm-required').checked = !!f.required;
+        document.getElementById('fm-type').value        = f.type || 'text';
+        document.getElementById('fm-key').value         = f.key || '';
+        document.getElementById('fm-label').value       = f.label || '';
+        document.getElementById('fm-content').value     = f.content || '';
+        document.getElementById('fm-width').value       = f.width || 'full';
+        document.getElementById('fm-required').checked  = !!f.required;
         document.getElementById('fm-placeholder').value = f.placeholder || '';
-        document.getElementById('fm-helptext').value = f.helpText || '';
-        document.getElementById('fm-rows').value = f.rows || 3;
-        document.getElementById('fm-options').value = (f.options || []).join('\n');
-        fbUpdateModalVisibility();
+        document.getElementById('fm-helptext').value    = f.helpText || '';
+        document.getElementById('fm-rows').value        = f.rows || 3;
+        document.getElementById('fm-options').value     = (f.options || []).join('\n');
+        fbUpdateModal();
     }
 
-    // ── Utils ──────────────────────────────────────────────────────────────
-    function esc(s) {
-        return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-    function escHtml(s) {
-        return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
+    function esc(s)  { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+    function escH(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function escA(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
 })();
 </script>
