@@ -4,14 +4,9 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="mb-0">Forms</h4>
-    <div class="d-flex gap-2">
-        <a asp-page="/Admin/Forms/Create" class="btn btn-sm btn-mpd">
-            <i class="bi bi-plus-lg me-1"></i>New Form
-        </a>
-        <a asp-page="/Admin/Submissions" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-file-earmark-person me-1"></i>Submissions
-        </a>
-    </div>
+    <a asp-page="/Admin/Forms/Create" class="btn btn-sm btn-mpd">
+        <i class="bi bi-plus-lg me-1"></i>New Form
+    </a>
 </div>
 
 @if (TempData["Message"] != null)
