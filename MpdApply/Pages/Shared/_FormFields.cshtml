@@ -3,6 +3,20 @@
 
 @{
     bool hasSigs = Model.Fields.Any(f => f.Type == "signature");
+
+    Func<string?, string> renderPara = (raw) => {
+        if (string.IsNullOrEmpty(raw)) return "";
+        var re = new System.Text.RegularExpressions.Regex(@"\[([^\]]+)\]\((https?://[^\)]+)\)");
+        var sb = new System.Text.StringBuilder();
+        int last = 0;
+        foreach (System.Text.RegularExpressions.Match m in re.Matches(raw)) {
+            sb.Append(System.Net.WebUtility.HtmlEncode(raw[last..m.Index]));
+            sb.Append($"<a href=\"{System.Net.WebUtility.HtmlEncode(m.Groups[2].Value)}\" target=\"_blank\" rel=\"noopener noreferrer\">{System.Net.WebUtility.HtmlEncode(m.Groups[1].Value)}</a>");
+            last = m.Index + m.Length;
+        }
+        sb.Append(System.Net.WebUtility.HtmlEncode(raw[last..]));
+        return sb.ToString();
+    };
 }
 
 <div class="row g-3">
@@ -24,7 +38,7 @@
 
         case "paragraph":
             <div class="col-12">
-                <div class="p-3 rounded mb-2" style="background:#f8f9fa;font-size:0.82rem;line-height:1.7;color:#444;white-space:pre-line">@field.Content</div>
+                <div class="p-3 rounded mb-2" style="background:#f8f9fa;font-size:0.82rem;line-height:1.7;color:#444;white-space:pre-line">@Html.Raw(renderPara(field.Content))</div>
             </div>
             break;
 

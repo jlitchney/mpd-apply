@@ -86,7 +86,11 @@ public static class GenericPdfGenerator
                                     break;
 
                                 case "paragraph":
-                                    col.Item().PaddingTop(4).Text(field.Content ?? "")
+                                    var pdfPara = System.Text.RegularExpressions.Regex.Replace(
+                                        field.Content ?? "",
+                                        @"\[([^\]]+)\]\((https?://[^\)]+)\)",
+                                        "$1 ($2)");
+                                    col.Item().PaddingTop(4).Text(pdfPara)
                                         .FontSize(8).FontColor(Colors.Grey.Darken2).Italic();
                                     break;
 

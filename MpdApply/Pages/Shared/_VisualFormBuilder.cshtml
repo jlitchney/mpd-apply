@@ -95,6 +95,12 @@
                         <label class="form-label fw-semibold small">Content</label>
                         <textarea id="fm-content" class="form-control form-control-sm" rows="5" placeholder="Paragraph text..."></textarea>
                     </div>
+                    <div class="col-12" id="fm-row-linkhelp" style="margin-top:-4px;display:none">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fbInsertLink()">
+                            <i class="bi bi-link-45deg me-1"></i>Insert Link
+                        </button>
+                        <span class="text-muted ms-2" style="font-size:.72rem">Inserts <code>[link text](https://...)</code> — renders as a clickable link</span>
+                    </div>
                     <div class="col-12" id="fm-row-options">
                         <label class="form-label fw-semibold small">Options <span class="fw-normal text-muted">(one per line)</span></label>
                         <textarea id="fm-options" class="form-control form-control-sm font-monospace" rows="5" placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
@@ -577,11 +583,14 @@
 
     // ── Modal helpers ──────────────────────────────────────────────────────
     window.fbUpdateModal = function () {
-        const props = TYPE_PROPS[document.getElementById('fm-type').value] || [];
+        const type  = document.getElementById('fm-type').value;
+        const props = TYPE_PROPS[type] || [];
         ['key','label','content','width','required','placeholder','helptext','rows','options'].forEach(r => {
             const el = document.getElementById(`fm-row-${r}`);
             if (el) el.style.display = props.includes(r) ? '' : 'none';
         });
+        const lh = document.getElementById('fm-row-linkhelp');
+        if (lh) lh.style.display = type === 'paragraph' ? '' : 'none';
     };
     window.fbAutoKey = function () {
         if (autoKeyLocked) return;
@@ -619,6 +628,34 @@
     function esc(s)  { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
     function escH(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     function escA(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
+    function parseLinks(raw) {
+        const re = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g;
+        const parts = [];
+        let last = 0, m;
+        while ((m = re.exec(raw)) !== null) {
+            parts.push(escH(raw.slice(last, m.index)));
+            parts.push(`<a href="${escA(m[2])}" target="_blank" rel="noopener noreferrer">${escH(m[1])}</a>`);
+            last = m.index + m[0].length;
+        }
+        parts.push(escH(raw.slice(last)));
+        return parts.join('');
+    }
+
+    window.fbInsertLink = function () {
+        const ta    = document.getElementById('fm-content');
+        const start = ta.selectionStart, end = ta.selectionEnd;
+        const sel   = ta.value.substring(start, end);
+        const text  = prompt('Link text:', sel || '');
+        if (text === null) return;
+        const url = prompt('URL (https://...):');
+        if (!url) return;
+        if (!/^https?:\/\//i.test(url)) { alert('URL must start with http:// or https://'); return; }
+        const insert = `[${text || url}](${url})`;
+        ta.value = ta.value.substring(0, start) + insert + ta.value.substring(end);
+        ta.setSelectionRange(start + insert.length, start + insert.length);
+        ta.focus();
+    };
 
     // ── Preview ────────────────────────────────────────────────────────────
     let prevSchema = null, prevPage = 0;
@@ -682,7 +719,7 @@
                 return `<div class="col-12"><div style="border-top:2px solid #285190;margin:.5rem 0 .25rem;padding-top:.4rem;font-weight:600;color:#285190;font-size:.95rem">${lbl}</div></div>`;
 
             case 'paragraph':
-                return `<div class="col-12"><div class="p-3 rounded" style="background:#f8f9fa;font-size:.82rem;line-height:1.7;color:#444;white-space:pre-line">${escH(f.content||'')}</div></div>`;
+                return `<div class="col-12"><div class="p-3 rounded" style="background:#f8f9fa;font-size:.82rem;line-height:1.7;color:#444;white-space:pre-line">${parseLinks(f.content||'')}</div></div>`;
 
             case 'initials_panel':
                 return `<div class="col-12"><div class="p-2 rounded" style="background:#e8efff;border:1px solid #c6d4f3;font-size:.82rem;color:#285190"><i class="bi bi-keyboard me-1"></i>Initials setup — applicant types or draws their initials here</div></div>`;
