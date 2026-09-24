@@ -8,6 +8,7 @@ namespace MpdApply.Pages;
 public class IndexModel(AppDbContext db) : PageModel
 {
     public List<FormTemplate> PublishedForms { get; private set; } = [];
+    public string? LogoBase64 { get; private set; }
 
     public async Task OnGetAsync()
     {
@@ -15,5 +16,6 @@ public class IndexModel(AppDbContext db) : PageModel
             .Where(t => t.IsPublished)
             .OrderBy(t => t.Name)
             .ToListAsync();
+        LogoBase64 = (await db.Settings.FirstOrDefaultAsync(s => s.Key == "LogoBase64"))?.Value;
     }
 }

@@ -5,7 +5,14 @@
 }
 
 <div class="text-center pt-4 pb-3">
-    <i class="bi bi-shield-fill" style="font-size:3rem;color:#285190"></i>
+    @if (!string.IsNullOrEmpty(Model.LogoBase64))
+    {
+        <img src="@Model.LogoBase64" style="max-height:90px;max-width:180px;object-fit:contain" />
+    }
+    else
+    {
+        <i class="bi bi-shield-fill" style="font-size:3rem;color:#285190"></i>
+    }
     <h2 class="mt-2 mb-1">Available Forms</h2>
     <p class="text-muted mb-4" style="max-width:520px;margin:auto">
         Select a form below to get started. Your progress is saved at each step.
