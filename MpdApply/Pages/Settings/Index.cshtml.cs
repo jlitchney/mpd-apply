@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MpdApply.Data;
 using MpdApply.Models;
+using MpdApply.Pages.Admin;
 using System.ComponentModel.DataAnnotations;
 
 namespace MpdApply.Pages.Settings;

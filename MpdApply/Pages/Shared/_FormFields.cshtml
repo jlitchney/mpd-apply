@@ -64,7 +64,14 @@
                     <option value="">-- Select --</option>
                     @foreach (var opt in field.Options)
                     {
-                        <option value="@opt" @(val == opt ? "selected" : "")>@opt</option>
+                        if (val == opt)
+                        {
+                            <option value="@opt" selected>@opt</option>
+                        }
+                        else
+                        {
+                            <option value="@opt">@opt</option>
+                        }
                     }
                 </select>
             </div>
