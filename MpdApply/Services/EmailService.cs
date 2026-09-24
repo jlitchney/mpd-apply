@@ -64,4 +64,55 @@ public class EmailService
             throw;
         }
     }
+
+    public async Task SendConfirmationAsync(string applicantEmail, string applicantName, string formName, byte[] pdfBytes)
+    {
+        var host = _config["Smtp:Host"];
+        var port = int.TryParse(_config["Smtp:Port"], out var p) ? p : 587;
+        var user = _config["Smtp:Username"];
+        var pass = _config["Smtp:Password"];
+        var from = _config["Smtp:FromEmail"] ?? user;
+
+        if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(user))
+        {
+            _log.LogInformation("[Email stub] Confirmation to {Email} not sent — SMTP not configured.", applicantEmail);
+            return;
+        }
+
+        var subject = $"Your {formName} Submission — Confirmation";
+        var body = $"""
+            <p>Dear {applicantName},</p>
+            <p>Thank you for submitting the <strong>{formName}</strong>. A copy of your completed, signed form is attached for your records.</p>
+            <p>If you have any questions, please contact us directly.</p>
+            <hr/><p style="font-size:12px;color:#666;">This is an automated confirmation. Please retain this email and the attached PDF for your records.</p>
+            """;
+
+        using var message = new MailMessage();
+        message.From = new MailAddress(from!, "MPD Applications");
+        message.To.Add(applicantEmail);
+        message.Subject = subject;
+        message.Body = body;
+        message.IsBodyHtml = true;
+        message.Attachments.Add(new Attachment(
+            new MemoryStream(pdfBytes),
+            $"{formName.Replace(" ", "_")}_Confirmation.pdf",
+            "application/pdf"));
+
+        using var client = new SmtpClient(host, port)
+        {
+            EnableSsl = true,
+            Credentials = new NetworkCredential(user, pass)
+        };
+
+        try
+        {
+            await client.SendMailAsync(message);
+            _log.LogInformation("Confirmation email sent to {Email}", applicantEmail);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to send confirmation to {Email}", applicantEmail);
+            throw;
+        }
+    }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using MpdApply.Data;
 using MpdApply.Models;
 using MpdApply.Services;
+using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace MpdApply.Pages.Forms;
@@ -59,6 +60,13 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
             if (v != null) pageValues[key] = v;
         }
 
+        // Capture signature timestamps
+        foreach (var field in PageDef.Fields.Where(f => f.Type == "signature"))
+        {
+            var v = Request.Form[$"{field.Key}__signedAt"].FirstOrDefault();
+            if (v != null) pageValues[$"{field.Key}__signedAt"] = v;
+        }
+
         // Validate required fields on current page
         var errors = new List<string>();
         foreach (var field in PageDef.Fields)
@@ -72,6 +80,14 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
         if (errors.Any())
         {
             TempData["Error"] = $"Please complete all required fields: {string.Join(", ", errors)}.";
+            SessionValues = MergeSession(pageValues);
+            return Page();
+        }
+
+        // Consent validation on final page
+        if (CurrentPage == TotalPages && Request.Form["EsignConsent"].FirstOrDefault() != "true")
+        {
+            TempData["Error"] = "Please read and check the electronic signature consent box before submitting.";
             SessionValues = MergeSession(pageValues);
             return Page();
         }
@@ -91,6 +107,8 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
             Status = "Submitted",
             SubmittedAt = DateTime.UtcNow,
             IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+            UserAgent = Request.Headers.UserAgent.ToString(),
+            ConsentGiven = true,
             ValuesJson = JsonSerializer.Serialize(merged),
             ApplicantName = merged.GetValueOrDefault("name")
                 ?? merged.GetValueOrDefault("full_name")
@@ -102,20 +120,26 @@ public class ViewModel(AppDbContext db, EmailService email, ILogger<ViewModel> l
         db.FormSubmissions.Add(submission);
         await db.SaveChangesAsync();
 
-        // Generate PDF and email
+        // Generate PDF, hash it, and email
         try
         {
             var logoSetting = await db.Settings.FindAsync("LogoBase64");
             var agencySetting = await db.Settings.FindAsync("AgencyName");
-            var recipientSetting = await db.Settings.FindAsync(template.RecipientEmail != null ? "" : "RecipientEmail");
             var recipient = template.RecipientEmail
                 ?? (await db.Settings.FindAsync("RecipientEmail"))?.Value
                 ?? "jason@allstartalent.us";
             var agency = agencySetting?.Value ?? "Town of Middletown Police Department";
 
             var pdf = GenericPdfGenerator.Generate(template, submission, logoSetting?.Value, agency);
+
+            submission.PdfHash = Convert.ToHexString(SHA256.HashData(pdf));
+            await db.SaveChangesAsync();
+
             await email.SendApplicationAsync(recipient, submission.ApplicantName ?? "Applicant", pdf,
                 $"{template.Name} — {submission.ApplicantName}");
+
+            if (!string.IsNullOrWhiteSpace(submission.ApplicantEmail))
+                await email.SendConfirmationAsync(submission.ApplicantEmail, submission.ApplicantName ?? "Applicant", template.Name, pdf);
         }
         catch (Exception ex)
         {

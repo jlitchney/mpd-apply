@@ -14,6 +14,9 @@ public class FormSubmission
     public string ValuesJson { get; set; } = "{}";
     public string? ApplicantName { get; set; }
     public string? ApplicantEmail { get; set; }
+    public string? UserAgent { get; set; }
+    public string? PdfHash { get; set; }
+    public bool ConsentGiven { get; set; }
 
     public Dictionary<string, string> Values
     {

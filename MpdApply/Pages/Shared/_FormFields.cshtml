@@ -147,6 +147,7 @@
                 <button type="button" class="btn btn-sm btn-outline-secondary sig-clear"
                         data-key="@field.Key">Clear</button>
                 <input type="hidden" name="@field.Key" id="sig_@field.Key" />
+                <input type="hidden" name="@(field.Key)__signedAt" id="sigAt_@field.Key" />
             </div>
             break;
 
@@ -169,11 +170,23 @@
 <script>
 var _sigPads = {};
 document.querySelectorAll('.sig-canvas').forEach(function(c) {
-    var pad = new SignaturePad(c, { backgroundColor: 'rgb(255,255,255)' });
-    _sigPads[c.dataset.key] = pad;
+    var key = c.dataset.key;
+    var pad = new SignaturePad(c, {
+        backgroundColor: 'rgb(255,255,255)',
+        onEnd: function() {
+            var ts = document.getElementById('sigAt_' + key);
+            if (ts && !ts.value) ts.value = new Date().toISOString();
+        }
+    });
+    _sigPads[key] = pad;
 });
 document.querySelectorAll('.sig-clear').forEach(function(btn) {
-    btn.addEventListener('click', function() { _sigPads[btn.dataset.key].clear(); });
+    btn.addEventListener('click', function() {
+        var key = btn.dataset.key;
+        _sigPads[key].clear();
+        var ts = document.getElementById('sigAt_' + key);
+        if (ts) ts.value = '';
+    });
 });
 // Capture all signatures on submit
 document.querySelectorAll('form').forEach(function(form) {

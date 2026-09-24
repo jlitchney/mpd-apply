@@ -35,6 +35,9 @@ using (var scope = app.Services.CreateScope())
     {
         "ALTER TABLE Applications ADD COLUMN InitialsMode TEXT",
         "ALTER TABLE Applications ADD COLUMN InitialsImageData TEXT",
+        "ALTER TABLE FormSubmissions ADD COLUMN UserAgent TEXT",
+        "ALTER TABLE FormSubmissions ADD COLUMN PdfHash TEXT",
+        "ALTER TABLE FormSubmissions ADD COLUMN ConsentGiven INTEGER NOT NULL DEFAULT 0",
     };
     foreach (var sql in migrations)
         try { db.Database.ExecuteSqlRaw(sql); } catch { }

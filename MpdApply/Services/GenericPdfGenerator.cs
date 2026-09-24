@@ -201,7 +201,7 @@ public static class GenericPdfGenerator
                 break;
 
             case "signature":
-                RenderSignature(el, f, val, submission, fs);
+                RenderSignature(el, f, val, values, submission, fs);
                 break;
 
             default:
@@ -210,8 +210,14 @@ public static class GenericPdfGenerator
         }
     }
 
-    static void RenderSignature(IContainer el, FormFieldDef f, string val, FormSubmission submission, float fs)
+    static void RenderSignature(IContainer el, FormFieldDef f, string val, Dictionary<string, string> values, FormSubmission submission, float fs)
     {
+        values.TryGetValue($"{f.Key}__signedAt", out var signedAtRaw);
+        DateTime? signedAt = null;
+        if (!string.IsNullOrWhiteSpace(signedAtRaw) &&
+            DateTime.TryParse(signedAtRaw, null, System.Globalization.DateTimeStyles.RoundtripKind, out var dt))
+            signedAt = dt.ToLocalTime();
+
         el.Row(r =>
         {
             r.RelativeItem(2).Column(c =>
@@ -230,6 +236,9 @@ public static class GenericPdfGenerator
                 {
                     c.Item().Height(28).BorderBottom(0.75f).BorderColor(Colors.Grey.Medium).Text("");
                 }
+                if (signedAt.HasValue)
+                    c.Item().Text($"Electronically signed {signedAt:MM/dd/yyyy h:mm tt}")
+                        .FontSize(Math.Max(6f, fs - 2f)).FontColor(Colors.Grey.Darken1).Italic();
             });
             r.ConstantItem(10);
             r.RelativeItem().Column(c =>
